@@ -218,6 +218,17 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_json(intra_credentials.status())
             except intra_credentials.CredentialError as error:
                 self.send_json({'error': str(error)}, 400)
+        elif url.path == '/api/intra/catalog':
+            if not self.intra_local():
+                self.send_json({'error': 'Open Xattendo on localhost.'}, 403)
+                return
+            try:
+                raw_id = parse_qs(url.query).get('cursus', [''])[0]
+                if not raw_id.isascii() or not raw_id.isdecimal() or len(raw_id) > 9:
+                    raise ValueError('Choose a valid cursus.')
+                self.send_json(campus_features.catalog_data(int(raw_id)))
+            except (ValueError, OSError) as error:
+                self.send_json({'error': str(error)}, 400)
         elif url.path in ('/api/intra/profile', '/api/intra/sessions'):
             port = self.server.server_port
             allowed = {f'localhost:{port}', f'127.0.0.1:{port}'}

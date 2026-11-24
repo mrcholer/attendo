@@ -51,3 +51,13 @@ class CampusFeatureTests(unittest.TestCase):
         with patch.object(campus,'current_login',return_value='student'), patch.object(campus,'token',return_value='token'), patch.object(campus,'api_get',return_value=raw), patch.object(campus,'fetch_projects',return_value=([active],True)):
             result=campus.profile_data()
         self.assertEqual(result['profile']['projects'],[active])
+
+    def test_catalog_session_status(self):
+        now = datetime(2026, 11, 24, 12, tzinfo=timezone.utc)
+        session = {'campus_id': 1, 'cursus_id': 21, 'is_subscriptable': True,
+                   'begin_at': None, 'end_at': None}
+        self.assertEqual(campus.project_availability({'project_sessions':[session]},21,[1],now),'open')
+        self.assertEqual(campus.project_availability({'project_sessions':[session]},21,[2],now),'unknown')
+        self.assertEqual(campus.project_availability({},21,[1],now),'unknown')
+        self.assertEqual(campus.project_availability({'project_sessions':[dict(session,is_subscriptable=False)]},21,[1],now),'closed')
+        self.assertEqual(campus.project_availability({'project_sessions':[dict(session,begin_at='2027-01-01T00:00:00Z')]},21,[1],now),'closed')

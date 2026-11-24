@@ -90,7 +90,7 @@ def sanitize_projects(rows):
             continue
         validation = row.get('validated?')
         result.append({'id': number(row.get('id')), 'name': string(project['name']),
-                       'slug': string(project.get('slug')), 'status': string(row.get('status')),
+                       'slug': string(project.get('slug')), 'project_id': number(project.get('id')), 'status': string(row.get('status')),
                        'mark': number(row.get('final_mark')),
                        'validated': validation if type(validation) is bool else None,
                        'cursus_ids': [n for n in row.get('cursus_ids', []) if type(n) is int]
@@ -122,7 +122,7 @@ def fetch_projects(login, access):
 def sanitize_profile(raw, login):
     if not isinstance(raw, dict) or raw.get('login') != login:
         raise APIError('42 API profile does not match campus account.')
-    courses = [{'name': string(c['cursus'].get('name')), 'level': number(c.get('level')),
+    courses = [{'id': number(c['cursus'].get('id')), 'slug': string(c['cursus'].get('slug')), 'grade': string(c.get('grade')), 'name': string(c['cursus'].get('name')), 'level': number(c.get('level')),
                 'end_at': string(c.get('end_at'))}
                for c in objects(raw.get('cursus_users')) if isinstance(c.get('cursus'), dict)]
     projects = sanitize_projects(raw.get('projects_users'))
@@ -155,6 +155,76 @@ def profile_data():
     except APIError as error:
         data['message'] = str(error)
     return data
+
+def project_availability(project, cursus_id, campus_ids, now=None):
+    """Session registration flags are not a personal prerequisite check."""
+    now = now or datetime.now(timezone.utc)
+    candidates = []
+    for session in objects(project.get('project_sessions')):
+        if 'campus_id' not in session or 'cursus_id' not in session:
+            continue
+        campus, cursus = session['campus_id'], session['cursus_id']
+        if campus is not None and campus not in campus_ids:
+            continue
+        if cursus is not None and cursus != cursus_id:
+            continue
+        flag = session.get('is_subscriptable')
+        if type(flag) is not bool:
+            continue
+        start, end = timestamp(session.get('begin_at')), timestamp(session.get('end_at'))
+        if (session.get('begin_at') is not None and start is None
+                or session.get('end_at') is not None and end is None):
+            continue
+        rank = (int(campus is not None), int(cursus is not None))
+        opened = flag and (start is None or start <= now) and (end is None or now < end)
+        candidates.append((rank, opened))
+    if not candidates:
+        return 'unknown'
+    rank = max(r for r, _ in candidates)
+    states = {opened for r, opened in candidates if r == rank}
+    if len(states) != 1:
+        return 'unknown'
+    return 'open' if True in states else 'closed'
+
+
+def catalog_data(cursus_id):
+    login = current_login()
+    access = token()
+    if not login or not access:
+        raise APIError('Connect your 42 API application and sign in first.')
+    raw = api_get('users/' + quote(login, safe=''), access)
+    p = sanitize_profile(raw, login)
+    if not any(c['id'] == cursus_id for c in p['cursus']):
+        raise APIError('This cursus is not present in your 42 profile.')
+    campuses = [c['id'] for c in objects(raw.get('campus')) if type(c.get('id')) is int]
+    primary = [c['campus_id'] for c in objects(raw.get('campus_users'))
+               if c.get('is_primary') is True and type(c.get('campus_id')) is int]
+    campus_ids = primary or campuses
+    rows, seen = [], set()
+    complete = False
+    for page in range(1, 9):
+        batch = api_get(f'cursus/{cursus_id}/projects', access,
+                        {'page[size]': 100, 'page[number]': page})
+        if not isinstance(batch, list):
+            raise APIError('Unexpected 42 project catalog response.')
+        new = 0
+        for project in objects(batch):
+            ident = project.get('id')
+            if type(ident) is not int or ident in seen or not isinstance(project.get('name'), str):
+                continue
+            seen.add(ident)
+            new += 1
+            rows.append({'id': ident, 'name': string(project['name']),
+                         'slug': string(project.get('slug')),
+                         'availability': project_availability(project, cursus_id, campus_ids)})
+        if len(batch) < 100:
+            complete = True
+            break
+        if not new:
+            break
+    return {'login': login, 'cursus_id': cursus_id, 'projects': rows, 'complete': complete,
+            'note': 'Open means a matching project session allows registration; personal prerequisites may still apply. Unknown does not mean closed.'}
+
 
 def day_bounds(day):
     return (datetime.combine(day, datetime.min.time(), ZONE),

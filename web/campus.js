@@ -9,39 +9,69 @@ const time=n=>clock.format(new Date(n));
 const profile=$('v7-profile'),projects=$('v7-projects'),timeline=$('v7-timeline'),rows=$('v7-rows'),status=$('v7-status'),date=$('v7-date');
 let request=null,key='',view='';
 function metric(k,v){const n=el('div','','v6-metric');n.append(el('span',k,'v5-muted'),el('strong',v));return n}
-function clear(){window.xattendoUI?.campusBusy('profile',false);window.xattendoUI?.campusBusy('sessions',false);request?.abort();request=null;for(const n of [profile,projects,timeline,rows,status])n.replaceChildren();for(const id of ['v7-profile-refresh','v7-session-refresh'])$(id).disabled=false}
+function clear(){catalogRequest?.abort();catalogRequest=null;window.xattendoUI?.campusBusy('profile',false);window.xattendoUI?.campusBusy('sessions',false);request?.abort();request=null;for(const n of [profile,projects,timeline,rows,status])n.replaceChildren();for(const id of ['v7-profile-refresh','v7-session-refresh'])$(id).disabled=false}
+let chosenCourse=null,catalogRequest=null;
 function profileView(d){
 profile.replaceChildren();projects.replaceChildren();
 if(!d.login){profile.append(el('p',d.message||'Profile unavailable'));return}
-const p=d.profile,c=p?.cursus?.filter(x=>!x.end_at).at(-1)||p?.cursus?.at(-1);
-const ident=el('div','','v7-identity'), avatar=el('div',d.login.slice(0,2).toUpperCase(),'v7-avatar'), info=el('div');
+const p=d.profile,courses=(p?.cursus||[]).filter(c=>Number.isInteger(c.id));
+const ident=el('div','','v7-identity'),avatar=el('div',d.login.slice(0,2).toUpperCase(),'v7-avatar'),info=el('div');
 info.append(el('h2',p?.name||d.login),el('p','@'+d.login+' · '+(p?.campuses?.join(', ')||'42 Intra'),'v5-muted'));
 const link=el('a','Open Intra ↗','button');link.href='https://profile.intra.42.fr/users/'+encodeURIComponent(d.login);link.target='_blank';link.rel='noopener noreferrer';ident.append(avatar,info,link);profile.append(ident);
-const metrics=el('div','','v6-metrics');metrics.append(metric('Level',finite(c?.level)?c.level.toFixed(2):'—'),metric('Wallet',finite(p?.wallet)?String(p.wallet):'—'),metric('Correction points',finite(p?.correction_points)?String(p.correction_points):'—'),metric('Projects',p?.projects_available?String(p.projects.length):'—'));profile.append(metrics);
 if(d.message)profile.append(el('p',d.message,'v5-muted'));
-for(const c of p?.cursus||[]){const r=el('div','','v7-detail');r.append(el('span',c.name||'Cursus'),el('strong',finite(c.level)?'Level '+c.level.toFixed(2):'—'));profile.append(r)}
-if(d.project_message)projects.append(el('p',d.project_message,'v5-muted'));
-if(!p?.projects_available){projects.append(el('p',d.message||'Project details unavailable. Configure an authorized API token.','v5-muted'));return}
-const activeStatuses=new Set(['in_progress','creating_group','searching_a_group','waiting_for_correction','waiting_for_evaluation','registered','registration','waiting_for_group','parent','waiting_to_start']);
-const classify=p=>p.validated===true?'validated':activeStatuses.has(p.status)?'active':p.status==='finished'||p.validated===false?'finished':'other';
-const labels={in_progress:'In progress',creating_group:'Creating group',searching_a_group:'Searching for group',waiting_for_correction:'Waiting for correction',waiting_for_evaluation:'Waiting for evaluation',registered:'Registered',finished:'Finished'};
-const groups=[['Current registrations','active'],['Validated projects','validated'],['Other completed attempts','finished'],['Other registrations','other']];
-if(!p.projects.length){projects.append(el('p','No project registrations returned.','v5-muted'));return}
-for(const [title,kind] of groups){
- const list=p.projects.filter(x=>classify(x)===kind);
- if(!list.length&&kind!=='active')continue;
- const section=el('section','','v72-project-section'),heading=el('div','','v72-project-heading');heading.append(el('h3',title),el('span',String(list.length),'v72-project-count'));section.append(heading);
- if(!list.length)section.append(el('p','No active registrations returned.','v5-muted'));
- for(const item of list){
- const row=el('div','','v72-project-row'),left=el('div','','v72-project-name'),right=el('div','','v72-project-meta');
- left.append(el('strong',item.name));
- const label=item.validated===true?'Validated':labels[item.status]||(item.status?item.status.replace(/_/g,' '):'Unknown status');
- right.append(el('span',label,'v72-project-status '+kind));
- right.append(el('span',finite(item.mark)?String(item.mark)+'/100':'Not graded','v72-project-mark'));
- row.append(left,right);section.append(row);
- }
- projects.append(section);
+const controls=el('div','','v74-tabs');const body=el('div');profile.append(controls,body);
+const python=el('section','','v74-python');
+function isPython(x){return /python/i.test(x.name||'')||/python/i.test(x.slug||'')}
+function group(title,list,empty){
+const section=el('section','','v72-project-section'),heading=el('div','','v72-project-heading');heading.append(el('h3',title),el('span',String(list.length),'v72-project-count'));section.append(heading);
+if(!list.length)section.append(el('p',empty,'v5-muted'));
+for(const item of list){const row=el('div','','v72-project-row'),left=el('div','','v72-project-name'),right=el('div','','v72-project-meta');
+left.append(el('strong',item.name));
+const registered=Object.prototype.hasOwnProperty.call(item,'status');
+const label=registered?(item.validated===true?'Validated':item.status?item.status.replace(/_/g,' '):'Registered'):item.availability==='open'?'Open for registration':item.availability==='closed'?'Not open':'Availability unknown';
+right.append(el('span',label,'v72-project-status '+(registered?(item.validated===true?'validated':'active'):item.availability==='open'?'active':'')));
+if(registered)right.append(el('span',finite(item.mark)?String(item.mark)+'/100':'Not graded','v72-project-mark'));
+row.append(left,right);section.append(row)}
+return section;
 }
+function renderPython(registered,catalog,known){
+python.replaceChildren();python.append(el('h3','Python Piscine'));
+const r=registered.filter(isPython),c=catalog.filter(isPython),open=c.filter(x=>x.availability==='open'),closed=c.filter(x=>x.availability==='closed'),unknown=c.filter(x=>x.availability==='unknown');
+if(r.length)python.append(group('Registered Python projects',r,''));
+if(open.length)python.append(group('Open Python projects',open,''));
+if(closed.length)python.append(group('Not open',closed,''));
+if(unknown.length)python.append(group('Availability unknown',unknown,''));
+if(!r.length&&!open.length&&!closed.length&&!unknown.length)python.append(el('p',known?'No Python Piscine projects found in this cursus catalog. Opening status not confirmed.':'Python Piscine opening status is unavailable.','v5-muted'));
+}
+async function show(c){
+catalogRequest?.abort();catalogRequest=null;chosenCourse=c?.id??null;
+for(const b of controls.children)b.setAttribute('aria-pressed',String(b.dataset.id===String(chosenCourse)));
+body.replaceChildren();projects.replaceChildren();
+const registered=(p?.projects||[]).filter(x=>c?x.cursus_ids?.includes(c.id):!x.cursus_ids?.length);
+const metrics=el('div','','v6-metrics');metrics.append(metric('Level',finite(c?.level)?c.level.toFixed(2):'—'),metric('Wallet',finite(p?.wallet)?String(p.wallet):'—'),metric('Correction points',finite(p?.correction_points)?String(p.correction_points):'—'),metric('Registrations',p?.projects_available?String(registered.length):'—'));body.append(metrics);
+if(d.project_message)projects.append(el('p',d.project_message,'v5-muted'));
+if(!p?.projects_available)projects.append(el('p','Registration records unavailable.','v5-muted'));
+const active=registered.filter(x=>x.validated!==true&&x.status!=='finished');
+projects.append(group('Registered · current',active,'No current registrations.'),group('Validated',registered.filter(x=>x.validated===true),'No validated projects.'),group('Other completed attempts',registered.filter(x=>x.status==='finished'&&x.validated!==true),'No other completed attempts.'));
+const catalogBox=el('div');projects.append(catalogBox,python);renderPython(registered,[],false);
+if(!c){catalogBox.append(el('p','Cursus information unavailable for these records.','v5-muted'));return}
+const ctrl=new AbortController();catalogRequest=ctrl;
+catalogBox.append(el('p','Loading available projects…','v5-muted'));for(let i=0;i<3;i++){const sk=el('div','','skeleton');sk.style.margin='12px 0';catalogBox.append(sk)}
+try{
+const res=await fetch('/api/intra/catalog?cursus='+encodeURIComponent(c.id),{cache:'no-store',signal:ctrl.signal});const result=await res.json();
+if(!res.ok)throw Error(result.error||'Catalog unavailable');
+if(ctrl.signal.aborted||catalogRequest!==ctrl||main.hidden||main.dataset.view!=='profile'||api.read().prefs.privacy||result.login!==d.login)return;
+const ids=new Set(registered.map(x=>x.project_id).filter(Number.isInteger)),slugs=new Set(registered.map(x=>x.slug).filter(Boolean));
+const unregistered=(result.projects||[]).filter(x=>!ids.has(x.id)&&!slugs.has(x.slug));
+catalogBox.replaceChildren();catalogBox.append(group('Not registered · open',unregistered.filter(x=>x.availability==='open'&&!isPython(x)),'No confirmed open unregistered projects.'));
+const closed=unregistered.filter(x=>x.availability==='closed'&&!isPython(x)),unknown=unregistered.filter(x=>x.availability==='unknown'&&!isPython(x));
+const details=el('details','','v74-details');details.append(el('summary','Closed / unknown projects ('+(closed.length+unknown.length)+')'),group('Not open',closed,'None confirmed closed.'),group('Availability unknown',unknown,'None.'));catalogBox.append(details,el('p',result.note+(result.complete?'':' Catalog may be incomplete.'),'v5-muted'));
+renderPython(registered,unregistered,true);
+}catch(e){if(!ctrl.signal.aborted&&catalogRequest===ctrl){catalogBox.replaceChildren(el('p','Unable to load project catalog: '+e.message,'v5-muted'));}}
+}
+for(const c of courses){const button=el('button',(c.grade?c.grade+' at ':'')+(c.name||'Cursus'),'button');button.type='button';button.dataset.id=String(c.id);button.onclick=()=>show(c);controls.append(button)}
+if((p?.projects||[]).some(x=>!x.cursus_ids?.length)){const button=el('button','Unassigned projects','button');button.dataset.id='null';button.onclick=()=>show(null);controls.append(button)}
+show(courses.find(c=>c.id===chosenCourse)||courses.find(c=>/42cursus/i.test(c.name||''))||courses.find(c=>!c.end_at)||courses[0]||null);
 }
 function sessionView(d){
 timeline.replaceChildren();rows.replaceChildren();status.textContent=(d.notes||[]).join(' ');
