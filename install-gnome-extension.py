@@ -8,7 +8,7 @@ import shutil
 project = Path(__file__).resolve().parent
 target = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local/share')) / 'gnome-shell/extensions/logged-time@local'
 target.mkdir(parents=True, exist_ok=True)
-for name in ('metadata.json', 'extension.js'):
+for name in ('metadata.json', 'extension.js', 'stylesheet.css'):
     shutil.copyfile(project / 'gnome-extension' / name, target / name)
 (target / 'config.json').write_text(json.dumps({'project': str(project)}) + '\n')
 print(f'Installed: {target}')

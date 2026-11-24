@@ -1,0 +1,7 @@
+.xattendo-card { min-width: 250px; spacing: 12px; padding: 8px 10px 12px; }
+.xattendo-title { font-size: 18px; font-weight: bold; }
+.xattendo-value { font-size: 30px; font-weight: bold; color: #b2a4ff; }
+.xattendo-muted { color: #a5a8bd; font-size: 11px; }
+.xattendo-metrics { font-size: 12px; }
+.xattendo-track { background-color: rgba(178,164,255,0.20); border-radius: 999px; height: 8px; }
+.xattendo-fill { background-color: #b2a4ff; border-radius: 999px; height: 8px; }

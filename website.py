@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 
 import attendo_client
 import intra_client
+import campus_features
 from desktop_startup import autostart_path, launch_at_login, set_launch_at_login
 
 ROOT = Path(__file__).resolve().parent
@@ -164,7 +165,42 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
             self.wfile.write(body)
-        elif url.path in ('/', '/index.html', '/style.css', '/app.js', '/theme.js', '/manifest.webmanifest', '/sw.js', '/icon-192.png', '/icon-512.png'):
+        elif url.path in ('/api/intra/profile', '/api/intra/sessions'):
+            port = self.server.server_port
+            allowed = {f'localhost:{port}', f'127.0.0.1:{port}'}
+            if port == 80:
+                allowed.update(('localhost', '127.0.0.1'))
+            if self.headers.get('Host') not in allowed or self.headers.get('Sec-Fetch-Site') == 'cross-site':
+                self.send_json({'error': 'Open Xattendo on localhost.'}, 403)
+                return
+            if url.path == '/api/intra/profile':
+                self.send_json(campus_features.profile_data())
+                return
+            try:
+                day = date.fromisoformat(parse_qs(url.query).get('date', [datetime.now(campus_features.ZONE).date().isoformat()])[0])
+                if day > datetime.now(campus_features.ZONE).date():
+                    raise ValueError()
+                start, end = campus_features.day_bounds(day)
+            except (ValueError, OverflowError):
+                self.send_json({'error': 'Choose a valid past or current date.'}, 400)
+                return
+            payload = {'date': day.isoformat(), 'start': start.isoformat(), 'end': end.isoformat(),
+                       'observed_through': min(end, datetime.now(campus_features.ZONE)).isoformat(),
+                       'locations': None, 'locks': None, 'notes': []}
+            try:
+                locks = command_json('shared_history.py', ['list', '--json', '--date', day.isoformat()])
+                if isinstance(locks.get('periods'), list):
+                    payload['locks'] = locks['periods']
+                payload['notes'].append('Screen-lock history contains observed records only.')
+            except (ValueError, OSError, subprocess.TimeoutExpired):
+                payload['notes'].append('Observed lock history unavailable.')
+            try:
+                payload['locations'], note = campus_features.locations(day, campus_features.current_login())
+                payload['notes'].append(note)
+            except (campus_features.APIError, OverflowError) as error:
+                payload['notes'].append(str(error))
+            self.send_json(payload)
+        elif url.path in ('/', '/index.html', '/style.css', '/app.js', '/theme.js', '/manifest.webmanifest', '/sw.js', '/icon-192.png', '/icon-512.png', '/campus.js'):
             super().do_GET()
         else:
             self.send_error(404)

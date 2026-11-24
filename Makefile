@@ -4,7 +4,7 @@ PYTHON ?= python3
 PORT ?= 47831
 ARGS ?=
 
-.PHONY: dependencies update help web stats run once json locks collect snapshot migrate-history install uninstall test
+.PHONY: dependencies update help web stats run once json locks collect snapshot migrate-history install uninstall test gnome
 
 help:
 	@printf '%s\n' \
@@ -66,6 +66,7 @@ dependencies:
 install: dependencies
 	$(MAKE) migrate-history ARGS=
 	PORT="$(PORT)" bash ./install.sh
+	@if [ -d "${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/logged-time@local" ]; then $(PYTHON) install-gnome-extension.py; fi
 
 uninstall:
 	bash ./install.sh --uninstall
@@ -73,3 +74,6 @@ uninstall:
 
 test:
 	$(PYTHON) -m unittest -v
+
+gnome:
+	$(PYTHON) install-gnome-extension.py

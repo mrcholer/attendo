@@ -1,7 +1,9 @@
 {
   "uuid": "logged-time@local",
-  "name": "xattendo",
+  "name": "Xattendo",
   "description": "Attendo logged time and observed workstation lock periods in the top bar.",
-  "shell-version": ["42"],
-  "version": 1
+  "shell-version": [
+    "42"
+  ],
+  "version": 2
 }

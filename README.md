@@ -83,6 +83,34 @@ missing.
 and let the app run there to collect any lock records still available on that
 station. Records that are no longer available cannot be recovered.
 
+## GNOME Shell 42 extension
+
+The redesigned top-bar menu displays net attendance, daily progress, recorded time, observed locks and current-period totals. It includes shortcuts to Profile, Session activity and Settings.
+
+```bash
+make gnome
+gnome-extensions enable logged-time@local
+```
+
+If the extension is not discovered, log out and back in before enabling it. GNOME Shell 42 is the supported version. Existing extension files are refreshed by `make install`. No sudo is required.
+
+## 42 Intra profile and session activity
+
+The new pages use your campus identity and observed lock records. Full academic details and exact Intra location intervals require an authorized official [42 API](https://api.intra.42.fr/apidoc/2.0.html) access token. Obtain one using your own authorized application or institution-approved authorization.
+
+In Bash, create a private token file:
+
+```bash
+mkdir -p ~/.config/xattendo
+umask 077
+read -rs -p '42 API access token: ' token; echo
+printf '%s\n' "$token" > ~/.config/xattendo/intra-token
+unset token
+chmod 600 ~/.config/xattendo/intra-token
+```
+
+Alternatively set `INTRA_API_TOKEN` in the server environment. Renew an expired token and refresh the relevant page. Never commit credentials. The dashboard only returns selected profile fields, and unavailable records remain unknown rather than being counted as absences. The new features need live campus and GNOME runtime testing.
+
 ## Lock-history storage
 
 Workstations share the SQLite database at
