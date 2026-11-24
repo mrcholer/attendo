@@ -10,6 +10,7 @@ from urllib.parse import quote, urlencode
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 from zoneinfo import ZoneInfo
 import attendo_client
+import intra_credentials
 
 ZONE = ZoneInfo('Africa/Casablanca')
 
@@ -21,6 +22,12 @@ class NoRedirect(HTTPRedirectHandler):
         raise APIError('42 API redirect refused.')
 
 def token():
+    try:
+        managed = intra_credentials.managed_token()
+        if managed:
+            return managed
+    except intra_credentials.CredentialError as error:
+        raise APIError(str(error)) from None
     value = os.environ.get('INTRA_API_TOKEN', '').strip()
     if not value:
         path = Path(os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config') / 'xattendo/intra-token'
@@ -144,7 +151,7 @@ def profile_data():
             except APIError as error:
                 data['project_message'] = 'Could not refresh project registrations: ' + str(error) + ' Showing embedded profile projects if available.'
         else:
-            data['message'] = 'Configure an optional 42 API token for academic details.'
+            data['message'] = 'Connect your 42 API application in Settings to load academic details.'
     except APIError as error:
         data['message'] = str(error)
     return data

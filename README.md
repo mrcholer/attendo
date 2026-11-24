@@ -98,6 +98,12 @@ If the extension is not discovered, log out and back in before enabling it. GNOM
 
 The new pages use your campus identity and observed lock records. Full academic details and exact Intra location intervals require an authorized official [42 API](https://api.intra.42.fr/apidoc/2.0.html) access token. Obtain one using your own authorized application or institution-approved authorization.
 
+### Connect from the dashboard (V7.3)
+
+Open **Settings → 42 Intra API**, enter your own application's UID and secret, then click **Connect to 42 API**. Use **Test connection** to renew and verify authorization, or **Disconnect** to delete the saved application credentials. The secret is stored locally in a mode-600 JSON file under `~/.config/xattendo/` (or `$XDG_CONFIG_HOME/xattendo/`); access tokens stay in server memory and are renewed on demand. This is application authentication using the public scope, not a replacement for your campus browser sign-in. Never commit credentials. Rotate any secret previously shared publicly or in chat.
+
+Manual token configuration is still supported:
+
 In Bash, create a private token file:
 
 ```bash

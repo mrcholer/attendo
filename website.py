@@ -19,6 +19,7 @@ from zoneinfo import ZoneInfo
 import attendo_client
 import intra_client
 import campus_features
+import intra_credentials
 from desktop_startup import autostart_path, launch_at_login, set_launch_at_login
 
 ROOT = Path(__file__).resolve().parent
@@ -98,7 +99,51 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def intra_local(self, post=False):
+        port = self.server.server_port
+        hosts = {f'localhost:{port}', f'127.0.0.1:{port}'}
+        if port == 80:
+            hosts.update(('localhost', '127.0.0.1'))
+        host = self.headers.get('Host')
+        if host not in hosts or self.headers.get('Sec-Fetch-Site') == 'cross-site':
+            return False
+        return not post or self.headers.get('Origin') == 'http://' + host
+
+    def intra_config_post(self):
+        if not self.intra_local(post=True):
+            self.send_json({'error': 'Open Xattendo on localhost to change API settings.'}, 403)
+            return
+        if self.headers.get_content_type() != 'application/json':
+            self.send_json({'error': 'Expected JSON settings.'}, 415)
+            return
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if not 0 < length <= 4096:
+                raise ValueError()
+            payload = json.loads(self.rfile.read(length))
+            if not isinstance(payload, dict) or payload.get('action') not in ('connect', 'test', 'disconnect'):
+                raise ValueError()
+        except (ValueError, UnicodeError):
+            self.send_json({'error': 'Invalid API configuration request.'}, 400)
+            return
+        try:
+            action = payload['action']
+            if action == 'connect':
+                result = intra_credentials.connect(payload.get('uid'), payload.get('secret'))
+            elif action == 'disconnect':
+                result = intra_credentials.disconnect()
+            else:
+                if not intra_credentials.managed_token(force=True):
+                    raise intra_credentials.CredentialError('Connect a 42 API application first.')
+                result = intra_credentials.status()
+            self.send_json(result)
+        except intra_credentials.CredentialError as error:
+            self.send_json({'error': str(error)}, 400)
+
     def do_POST(self):
+        if self.path == '/api/intra/config':
+            self.intra_config_post()
+            return
         if self.path != '/api/settings':
             self.send_error(404)
             return
@@ -165,6 +210,14 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif url.path == '/api/intra/config':
+            if not self.intra_local():
+                self.send_json({'error': 'Open Xattendo on localhost.'}, 403)
+                return
+            try:
+                self.send_json(intra_credentials.status())
+            except intra_credentials.CredentialError as error:
+                self.send_json({'error': str(error)}, 400)
         elif url.path in ('/api/intra/profile', '/api/intra/sessions'):
             port = self.server.server_port
             allowed = {f'localhost:{port}', f'127.0.0.1:{port}'}
@@ -200,7 +253,7 @@ class Handler(SimpleHTTPRequestHandler):
             except (campus_features.APIError, OverflowError) as error:
                 payload['notes'].append(str(error))
             self.send_json(payload)
-        elif url.path in ('/', '/index.html', '/style.css', '/app.js', '/theme.js', '/manifest.webmanifest', '/sw.js', '/icon-192.png', '/icon-512.png', '/campus.js'):
+        elif url.path in ('/', '/index.html', '/style.css', '/app.js', '/theme.js', '/manifest.webmanifest', '/sw.js', '/icon-192.png', '/icon-512.png', '/campus.js', '/ui.js'):
             super().do_GET()
         else:
             self.send_error(404)

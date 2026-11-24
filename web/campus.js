@@ -9,7 +9,7 @@ const time=n=>clock.format(new Date(n));
 const profile=$('v7-profile'),projects=$('v7-projects'),timeline=$('v7-timeline'),rows=$('v7-rows'),status=$('v7-status'),date=$('v7-date');
 let request=null,key='',view='';
 function metric(k,v){const n=el('div','','v6-metric');n.append(el('span',k,'v5-muted'),el('strong',v));return n}
-function clear(){request?.abort();request=null;for(const n of [profile,projects,timeline,rows,status])n.replaceChildren();for(const id of ['v7-profile-refresh','v7-session-refresh'])$(id).disabled=false}
+function clear(){window.xattendoUI?.campusBusy('profile',false);window.xattendoUI?.campusBusy('sessions',false);request?.abort();request=null;for(const n of [profile,projects,timeline,rows,status])n.replaceChildren();for(const id of ['v7-profile-refresh','v7-session-refresh'])$(id).disabled=false}
 function profileView(d){
 profile.replaceChildren();projects.replaceChildren();
 if(!d.login){profile.append(el('p',d.message||'Profile unavailable'));return}
@@ -23,7 +23,7 @@ for(const c of p?.cursus||[]){const r=el('div','','v7-detail');r.append(el('span
 if(d.project_message)projects.append(el('p',d.project_message,'v5-muted'));
 if(!p?.projects_available){projects.append(el('p',d.message||'Project details unavailable. Configure an authorized API token.','v5-muted'));return}
 const activeStatuses=new Set(['in_progress','creating_group','searching_a_group','waiting_for_correction','waiting_for_evaluation','registered','registration','waiting_for_group','parent','waiting_to_start']);
-const classify=p=>p.validated===true?'validated':p.status==='finished'||p.validated===false?'finished':activeStatuses.has(p.status)?'active':'other';
+const classify=p=>p.validated===true?'validated':activeStatuses.has(p.status)?'active':p.status==='finished'||p.validated===false?'finished':'other';
 const labels={in_progress:'In progress',creating_group:'Creating group',searching_a_group:'Searching for group',waiting_for_correction:'Waiting for correction',waiting_for_evaluation:'Waiting for evaluation',registered:'Registered',finished:'Finished'};
 const groups=[['Current registrations','active'],['Validated projects','validated'],['Other completed attempts','finished'],['Other registrations','other']];
 if(!p.projects.length){projects.append(el('p','No project registrations returned.','v5-muted'));return}
@@ -58,9 +58,9 @@ timeline.append(detail);for(const r of [...loc,...locks].sort((a,b)=>a.a-b.a)){c
 if(!rows.children.length){const tr=el('tr'),td=el('td','No available interval records.');td.colSpan=5;tr.append(td);rows.append(tr)}
 }
 async function load(v){clear();if(main.hidden||api.read().prefs.privacy){profile.textContent='Privacy mode is on.';status.textContent='Privacy mode is on.';return}
-const ctrl=new AbortController();request=ctrl;const b=$(v==='profile'?'v7-profile-refresh':'v7-session-refresh');b.disabled=true;const target=v==='profile'?profile:status;target.textContent='Loading…';
+const ctrl=new AbortController();request=ctrl;const b=$(v==='profile'?'v7-profile-refresh':'v7-session-refresh');b.disabled=true;const target=v==='profile'?profile:status;target.textContent='Loading…';window.xattendoUI?.campusBusy(v,true);
 try{const response=await fetch(v==='profile'?'/api/intra/profile':'/api/intra/sessions?date='+encodeURIComponent(date.value),{cache:'no-store',signal:ctrl.signal});const d=await response.json();if(!response.ok)throw Error(d.error||'Request failed');if(request!==ctrl||main.hidden||api.read().prefs.privacy)return;if(v==='profile')profileView(d);else sessionView(d)}
-catch(e){if(request===ctrl&&!ctrl.signal.aborted)target.textContent=e.message}finally{if(request===ctrl){request=null;b.disabled=false}}}
+catch(e){if(request===ctrl&&!ctrl.signal.aborted)target.textContent=e.message}finally{if(request===ctrl){request=null;b.disabled=false;window.xattendoUI?.campusBusy(v,false)}}}
 function route(){const s=api.read(),v=main.dataset.view,active=!main.hidden&&['profile','sessions'].includes(v);const next=active?[v,s.account,s.prefs.privacy].join('|'):'';if(next===key)return;key=next;if(!active){clear();view='';return}if(v==='sessions'){date.max=s.today;if(view!==v||!date.value)date.value=s.reportData?.date||s.today}view=v;load(v)}
 $('v7-profile-refresh').onclick=()=>load('profile');$('v7-session-refresh').onclick=()=>load('sessions');date.onchange=()=>date.value&&date.value<=api.read().today&&load('sessions');
 new MutationObserver(route).observe(main,{attributes:true,attributeFilter:['data-view','hidden']});new MutationObserver(route).observe(document.documentElement,{attributes:true,attributeFilter:['class']});setInterval(route,1500);route();
