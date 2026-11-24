@@ -582,3 +582,38 @@ footer {margin-top:6px}
 
 #overview:is([data-view=profile],[data-view=sessions]) :is(.dashboard-content>.toolbar,.dashboard-content>.section-kicker,.loading-dashboard,#day-report,#v5-overview-extra,#analytics-page,#settings-page,.dashboard-content>footer){display:none!important}
 .v7-identity{display:flex;align-items:center;gap:16px;margin:20px 0;flex-wrap:wrap}.v7-identity>div:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere}.v7-avatar{display:grid;place-items:center;width:60px;height:60px;border-radius:15px;background:var(--accent-soft);color:var(--logged);font-size:24px;font-weight:750}.v7-detail{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}.v7-axis{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:20px}.v7-lane{font-size:12px;font-weight:600;margin:16px 0 6px}.v7-track{height:34px;border:1px solid var(--border);background:var(--surface);border-radius:8px;position:relative;overflow:hidden}.v7-segment{position:absolute;top:5px;height:22px;border:0;min-width:2px;border-radius:5px;padding:0}.v7-segment.location{background:var(--logged)}.v7-segment.locked{background:var(--locked)}.v7-segment:hover,.v7-segment:focus-visible{opacity:.75;z-index:2;outline:2px solid var(--ink)}
+
+
+/* V7.1 hourly locks: compact chart above the detail table */
+.upstream-period-panel{padding:20px var(--panel-padding);margin:0;border-top:1px solid var(--border)}
+.lock-hour-panel{border-top:0;border-bottom:1px solid var(--border)}
+.lock-hour-panel h2{font-size:15px;font-weight:650}
+.lock-hour-panel .upstream-period-rows{gap:16px;margin-top:16px}
+.lock-hour-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.lock-hour-metric{border:1px solid var(--border);background:var(--surface);border-radius:9px;padding:12px 15px;min-width:0}
+.lock-hour-metric span{display:block;font-size:11px;color:var(--muted)}
+.lock-hour-metric strong{display:block;font-size:22px;font-weight:650;letter-spacing:-.035em;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:3px;overflow-wrap:anywhere}
+.lock-hour-metric:first-child strong{color:var(--locked)}
+.lock-hour-scroll{overflow-x:auto;padding:4px 3px 2px;scrollbar-width:thin}
+.lock-hour-graph{display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px;min-width:460px;--plot-height:134px}
+.lock-hour-y{height:var(--plot-height);display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--muted);text-align:right;line-height:1;transform:translateY(-3px)}
+.lock-hour-plot{display:grid;grid-template-columns:repeat(var(--hour-count),minmax(0,1fr));position:relative;gap:clamp(2px,.5vw,7px)}
+.lock-hour-grid{position:absolute;inset:0 0 auto;height:var(--plot-height);display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.lock-hour-grid i{border-top:1px dashed var(--border);width:100%}
+.lock-hour-slot{min-width:0;position:relative;display:grid;grid-template-rows:var(--plot-height) 24px}
+.lock-hour-bar{position:relative;display:flex;align-items:flex-end;justify-content:center;width:100%;min-width:0;height:100%;padding:0 2px;border:0;background:transparent;border-radius:5px;color:var(--ink);cursor:pointer}
+.lock-hour-bar:hover,.lock-hour-bar[aria-pressed=true]{background:var(--hover)}
+.lock-hour-fill{display:block;width:100%;max-width:36px;border-radius:5px 5px 2px 2px;background:var(--locked)}
+.lock-hour-bar[data-state=locked] .lock-hour-fill{min-height:3px}
+.lock-hour-bar[data-state=zero] .lock-hour-fill{height:3px!important;background:var(--muted);opacity:.45}
+.lock-hour-bar:is([data-state=future],[data-state=unknown]) .lock-hour-fill{height:3px!important;background:transparent;border:1px dashed var(--muted);opacity:.55}
+.lock-hour-bar:focus-visible{outline:2px solid var(--logged);outline-offset:-2px}
+.lock-hour-tick{font-size:10px;color:var(--muted);text-align:center;padding-top:6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lock-hour-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+.lock-hour-legend span{display:flex;align-items:center;gap:6px}
+.lock-hour-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--locked)}
+.lock-hour-legend i[data-state=zero]{background:var(--muted);opacity:.55}
+.lock-hour-legend i[data-state=future]{background:transparent;border:1px dashed var(--muted)}
+.lock-hour-detail{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;color:var(--secondary);font-size:12px;background:var(--surface)}
+.lock-hour-detail strong{font-weight:650;color:var(--locked)}
+@media(max-width:600px){.upstream-period-panel{padding:16px 14px}.lock-hour-summary{gap:6px}.lock-hour-metric{padding:9px 8px}.lock-hour-metric strong{font-size:17px}.lock-hour-metric span{font-size:10px}.lock-hour-graph{--plot-height:112px}}

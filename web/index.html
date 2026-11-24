@@ -508,7 +508,78 @@ new MutationObserver(route).observe(main,{attributes:true,attributeFilter:['data
     p.append(rows);parent.append(p);return {p,rows};
   }
   const hourly=panel(document.getElementById('history'),'Hourly screen locks','Observed lock duration by campus-local hour.');
+  hourly.p.classList.add('lock-hour-panel');
+  const lockTable=document.querySelector('#history > .table-wrap');
+  if(lockTable)lockTable.before(hourly.p);
   const period=panel(document.getElementById('attendance'),'Current period time breakdown','Intra location time and observed screen locks by date.');
+  const clock=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',minute:'2-digit'});
+  const compact=v=>{
+    if(!valid(v))return 'Unavailable';
+    if(v===0)return '0s';
+    const n=Math.max(1,Math.round(v)),m=Math.floor(n/60),s=n%60;
+    return n>=3600?Math.floor(n/3600)+'h '+Math.floor(n%3600/60)+'m':m?m+'m'+(s?' '+s+'s':''):s+'s';
+  };
+  let selectedHour=null, selectedDay=null;
+  function metric(label,value){
+    const node=create('div','lock-hour-metric');
+    node.append(create('span','',label),create('strong','',value));
+    return node;
+  }
+  function hourlyChart(hours,date,today){
+    const rows=hours.filter(h=>h&&Number.isFinite(Date.parse(h.start))).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
+    const known=rows.filter(h=>valid(h.locked_seconds));
+    if(!rows.length||!known.length){hourly.rows.append(create('p','v5-muted','Hourly records are unavailable.'));return}
+    if(selectedDay!==date){selectedHour=null;selectedDay=date}
+    const max=Math.max(...known.map(h=>h.locked_seconds));
+    const ceiling=[60,300,600,900,1800,3600].find(n=>n>=max)||Math.ceil(max/3600)*3600;
+    const locked=known.filter(h=>h.locked_seconds>0);
+    const peak=known.find(h=>h.locked_seconds===max);
+    const summary=create('div','lock-hour-summary');
+    summary.append(metric('Observed locks',compact(known.reduce((n,h)=>n+h.locked_seconds,0))),metric('Hours with locks',String(locked.length)),metric('Peak hour',max>0?clock.format(new Date(peak.start)):'—'));
+    hourly.rows.append(summary);
+    const scroll=create('div','lock-hour-scroll'), graph=create('div','lock-hour-graph');
+    scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Hourly lock chart; scroll horizontally on narrow screens');
+    const axis=create('div','lock-hour-y');
+    for(const n of [ceiling,ceiling/2,0])axis.append(create('span','',compact(n)));
+    const plot=create('div','lock-hour-plot');
+    plot.style.setProperty('--hour-count',rows.length);
+    const grid=create('div','lock-hour-grid');grid.setAttribute('aria-hidden','true');
+    for(let j=0;j<3;j++)grid.append(create('i'));
+    plot.append(grid);
+    const detail=create('div','lock-hour-detail');detail.setAttribute('aria-live','polite');
+    const buttons=[];
+    const describe=h=>{
+      const d=new Date(h.start), offset=clock.format(new Date(d.getTime()+3600000));
+      const label=clock.format(d)+' – '+offset;
+      const val=valid(h.locked_seconds)?compact(h.locked_seconds):date===today&&+d>Date.now()?'Upcoming':'Unavailable';
+      return [label,val];
+    };
+    function select(h){
+      selectedHour=h.start;
+      for(const [b,item] of buttons)b.setAttribute('aria-pressed',String(item.start===selectedHour));
+      const [label,val]=describe(h);
+      detail.replaceChildren(create('span','',label),create('strong','',val+(valid(h.locked_seconds)?' locked':'')));
+    }
+    rows.forEach((h,i)=>{
+      const slot=create('div','lock-hour-slot'),b=create('button','lock-hour-bar'),bar=create('span','lock-hour-fill');
+      b.type='button';
+      const state=valid(h.locked_seconds)?h.locked_seconds>0?'locked':'zero':date===today&&Date.parse(h.start)>Date.now()?'future':'unknown';
+      b.dataset.state=state;
+      const [label,val]=describe(h);b.title=label+' · '+val;b.setAttribute('aria-label',b.title);
+      b.setAttribute('aria-pressed','false');
+      bar.style.height=valid(h.locked_seconds)&&h.locked_seconds>0?Math.min(100,h.locked_seconds/ceiling*100)+'%':'0%';
+      b.append(bar);b.onclick=()=>select(h);buttons.push([b,h]);slot.append(b);
+      const tick=create('span','lock-hour-tick',i%4===0||i===rows.length-1?clock.format(new Date(h.start)):'');
+      slot.append(tick);plot.append(slot);
+    });
+    graph.append(axis,plot);scroll.append(graph);hourly.rows.append(scroll);
+    const legend=create('div','lock-hour-legend');
+    for(const [name,state] of [['Observed lock','locked'],['No observed locks','zero'],['Upcoming / unavailable','future']]){
+      const item=create('span');const swatch=create('i');swatch.dataset.state=state;item.append(swatch,document.createTextNode(name));legend.append(item);
+    }
+    hourly.rows.append(legend,detail);
+    select(rows.find(h=>h.start===selectedHour)||peak);
+  }
   let sig='';
   function addRow(parent,label,total,locked,max,onlyLocks=false){
     const row=create('div','upstream-time-row'),labelEl=create('span','',label);
@@ -527,16 +598,15 @@ new MutationObserver(route).observe(main,{attributes:true,attributeFilter:['data
   }
   function render(){
     if(document.getElementById('overview').hidden){sig='';hourly.rows.replaceChildren();period.rows.replaceChildren();return}
-    const state=api.read(),daily=state.reportData,report=state.analyticsData||daily;
+    const state=api.read();
+    if(state.prefs.privacy){sig='';hourly.rows.replaceChildren(create('p','v5-muted','Privacy mode is on.'));period.rows.replaceChildren();return}
+    const daily=state.reportData,report=state.analyticsData||daily;
     const hours=daily?.locks?.hourly_locks, totals=report?.report?.period_log_seconds, days=report?.locks?.period_days;
     const next=JSON.stringify([state.account,daily?.date,hours,totals,days,state.today]);
     if(next===sig)return;sig=next;
     hourly.rows.replaceChildren();period.rows.replaceChildren();
-    if(Array.isArray(hours)&&hours.length){
-      const max=Math.max(60,...hours.map(x=>valid(x.locked_seconds)?x.locked_seconds:0));
-      const clock=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',minute:'2-digit'});
-      for(const h of hours){const d=new Date(h.start);if(!Number.isFinite(+d))continue;addRow(hourly.rows,clock.format(d),h.locked_seconds,null,max,true);}
-    }else hourly.rows.append(create('p','v5-muted','Hourly records are unavailable.'));
+    if(Array.isArray(hours)&&hours.length)hourlyChart(hours,daily?.date||daily?.report?.date,state.today);
+    else hourly.rows.append(create('p','v5-muted','Hourly records are unavailable.'));
     const lockMap=new Map((Array.isArray(days)?days:[]).map(x=>[x.date,x.locked_seconds]));
     const dates=[...new Set([...Object.keys(totals||{}),...lockMap.keys()])].sort();
     const max=Math.max(60,...dates.map(d=>valid(totals?.[d])?totals[d]:0));
