@@ -1,207 +1,548 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Your local campus attendance and logged time dashboard."><title>Xattendo · Attendance</title><script src="/theme.js"></script><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="Campus attendance dashboard" name="description"/>
+<title>Xattendo · Attendance</title>
+<script src="/theme.js"></script>
+<link href="/style.css" rel="stylesheet"/>
+<script defer="" src="/app.js"></script>
+<link href="/manifest.webmanifest" rel="manifest"/><meta content="#15171e" name="theme-color"/><link href="/icon-192.png" rel="icon"/></head>
 <body>
-<section class="session-screen" id="session-screen" aria-labelledby="session-title">
-  <div class="card session-card">
-    <div class="brand">Xattendo</div>
-    <h1 id="session-title" tabindex="-1">Account sign-in</h1>
-    <p id="session-guidance">Sign in to both services in Firefox, Chrome, or Brave, then return here.</p>
-    <p class="browser-note"><strong>We recommend Firefox.</strong> If you use Chrome, it may take about 30 seconds for your sign-in to appear here.</p>
-    <ul class="session-services" aria-label="Accounts">
-      <li>
-        <div><strong id="intra-name">42 Intra</strong><span class="session-state" id="intra-state" role="status" aria-labelledby="intra-name">Checking…</span></div>
-        <a class="session-link" id="intra-login" href="https://profile.intra.42.fr/" target="_blank" rel="noopener noreferrer" aria-label="Open 42 Intra in a new tab"><span>Open site</span> <span aria-hidden="true">↗</span></a>
-      </li>
-      <li>
-        <div><strong id="attendo-name">1337 Attendo</strong><span class="session-state" id="attendo-state" role="status" aria-labelledby="attendo-name">Checking…</span></div>
-        <a class="session-link" id="attendo-login" href="https://attendo.1337.ma/students/login" target="_blank" rel="noopener noreferrer" aria-label="Open 1337 Attendo in a new tab"><span>Open site</span> <span aria-hidden="true">↗</span></a>
-      </li>
-    </ul>
-    <p id="session-status" role="status"></p>
-    <div class="session-actions">
-      <button class="button" id="retry-session" type="button" disabled>Checking…</button>
-    </div>
-  </div>
-</section>
-<main id="dashboard" hidden>
-<header class="app-header">
-  <a class="brand" href="#overview">Xattendo</a>
-  <nav class="page-nav" aria-label="Dashboard pages">
-    <a href="#overview" aria-current="page">Overview</a>
-    <a href="#details">Details</a>
-    <a href="#week">Week</a>
-  </nav>
-  <a class="repo-support" href="https://github.com/mohamednasih/attendo" target="_blank" rel="noopener noreferrer" aria-label="Star on GitHub (opens in a new tab)">
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="m12 3 2.78 5.63L21 9.54l-4.5 4.39 1.06 6.2L12 17.2l-5.56 2.93 1.06-6.2L3 9.54l6.22-.91Z"/></svg>
-    Star on GitHub
-  </a>
-  <div class="header-actions">
-    <button class="button" id="theme" type="button" aria-label="Switch theme">
-      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <g class="theme-light"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></g>
-        <path class="theme-dark" d="M20.5 14A8.7 8.7 0 0 1 10 3.5 8.8 8.8 0 1 0 20.5 14Z"/>
-      </svg>
-    </button>
-    <button class="button" id="open-settings" aria-haspopup="dialog" aria-controls="settings">Settings</button>
-  </div>
+<section aria-labelledby="session-title" class="session-screen" id="session-screen">
+<div class="card session-card">
+<div class="brand">Xattendo</div>
+<h1 id="session-title" tabindex="-1">Account sign-in</h1>
+<p id="session-guidance">Connect your campus accounts to view your attendance.</p>
+<p class="browser-note">Firefox is recommended. Chrome may need around 30 seconds to detect your session.</p>
+<ul aria-label="Campus accounts" class="session-services">
+<li>
+<div><strong id="intra-name">42 Intra</strong><span aria-labelledby="intra-name" class="session-state" id="intra-state" role="status">Checking…</span></div>
+<a class="session-link" href="https://profile.intra.42.fr/" id="intra-login" rel="noopener noreferrer" target="_blank"><span>Open site</span><span aria-hidden="true">↗</span></a>
+</li>
+<li>
+<div><strong id="attendo-name">1337 Attendo</strong><span aria-labelledby="attendo-name" class="session-state" id="attendo-state" role="status">Checking…</span></div>
+<a class="session-link" href="https://attendo.1337.ma/students/login" id="attendo-login" rel="noopener noreferrer" target="_blank"><span>Open site</span><span aria-hidden="true">↗</span></a>
+</li>
+</ul>
+<p id="session-status" role="status"></p>
+<div class="session-actions"><button class="button" disabled="" id="retry-session" type="button">Checking…</button></div>
+<button class="button v6-offline-link" hidden="" id="v6-offline-open" type="button">Open saved attendance offline</button></div>
+</section><section class="v6-offline" hidden="" id="v6-offline"><article class="card v6-card"><div class="analytics-card-heading"><div><h1>Saved attendance</h1><p>Offline snapshot · not live · this browser only</p></div><button class="button" id="v6-offline-close">Back to sign-in</button></div><p id="v6-offline-meta"></p><div class="table-wrap"><table><thead><tr><th>Date</th><th>Recorded hours</th></tr></thead><tbody id="v6-offline-rows"></tbody></table></div><button class="button" id="v6-offline-clear">Delete offline snapshot</button></article></section>
+<aside class="sidebar" hidden="" id="sidebar">
+<div class="v5-brand-row"><a class="brand" href="#/overview">Xattendo</a><button aria-label="Toggle sidebar" class="v5-icon-button" id="v5-collapse" title="Toggle sidebar" type="button"><svg class="icon" viewbox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"></rect><path d="M9 4v16"></path></svg></button></div><button aria-label="Quick actions" class="v5-command-trigger" id="v5-command-trigger" type="button"><span><svg class="icon" viewbox="0 0 24 24"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 5 5"></path></svg><span>Quick actions</span></span><kbd>Ctrl K</kbd></button>
+<div class="space-label">WORKSPACE</div>
+<a aria-current="page" aria-label="Overview" class="nav active" data-view="overview" href="#/overview" title="Overview"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><rect height="7" rx="1.3" width="7" x="3" y="3"></rect><rect height="7" rx="1.3" width="7" x="14" y="3"></rect><rect height="7" rx="1.3" width="7" x="3" y="14"></rect><rect height="7" rx="1.3" width="7" x="14" y="14"></rect></svg><span class="nav-label">Overview</span></a>
+<a aria-label="Analytics" class="nav" data-view="analytics" href="#/analytics" title="Analytics"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M3 3v18h18M7 16v-4m5 4V7m5 9v-6"></path></svg><span class="nav-label">Analytics</span></a>
+<a aria-label="Lock history" class="nav" data-view="history" href="#/history" title="Lock history"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span class="nav-label">Lock history</span></a>
+<a aria-label="Attendance" class="nav" data-view="attendance" href="#/attendance" title="Attendance"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="5"></rect><path d="M16 3v4M8 3v4M3 10h18M8 15h2m4 0h2"></path></svg><span class="nav-label">Attendance</span></a>
+<a aria-label="Calendar" class="nav" data-view="calendar" href="#/calendar" title="Calendar"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M3 5h18v16H3zM3 10h18M8 3v4m8-4v4"></path></svg><span class="nav-label">Calendar</span></a><a aria-label="Reports" class="nav" data-view="reports" href="#/reports" title="Reports"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M5 3h10l4 4v14H5zM9 17v-4m3 4V9m3 8v-6"></path></svg><span class="nav-label">Reports</span></a><a aria-label="Insights" class="nav" data-view="insights" href="#/insights" title="Insights"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"></path></svg><span class="nav-label">Insights</span></a><div class="space-label v6-pref-label">PREFERENCES</div><a aria-label="Settings" class="nav v5-settings-nav" data-view="settings" href="#/settings" title="Settings"><svg class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"></path><circle cx="12" cy="12" r="7"></circle></svg><span class="nav-label">Settings</span></a><a aria-label="Notifications" class="nav" data-view="notifications" href="#/notifications" title="Notifications"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 13h4"></path></svg><span class="nav-label">Notifications</span></a><a aria-label="Customize" class="nav" data-view="customize" href="#/customize" title="Customize"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16M8 3v6m8 0v6m-6 0v6"></path></svg><span class="nav-label">Customize</span></a><a aria-label="System status" class="nav" data-view="system" href="#/system" title="System status"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M2 12h5l3-7 4 14 3-7h5"></path></svg><span class="nav-label">System status</span></a><a aria-label="Focus mode" class="nav" data-view="focus" href="#/focus" title="Focus mode"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"></path></svg><span class="nav-label">Focus mode</span></a><a aria-label="Star on GitHub" class="repo-support" href="https://github.com/mohamednasih/attendo" rel="noopener noreferrer" target="_blank"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.8a5.3 5.3 0 0 0-1.4-3.7 5 5 0 0 0-.1-3.7s-1.1-.3-3.7 1.4a13 13 0 0 0-6.5 0C6 1 4.9 1.3 4.9 1.3a5 5 0 0 0-.1 3.7A5.3 5.3 0 0 0 3.4 8.7c0 5.3 3.2 6.5 6.2 6.8a3.4 3.4 0 0 0-.9 2.6V22"></path></svg><span>Star on GitHub</span></a>
+<div class="sidebar-bottom"><span class="local-dot"></span> Running locally<div>1337 · Attendo</div></div>
+</aside>
+<main data-view="overview" hidden="" id="overview">
+<header>
+<div class="breadcrumb"><span>Workspace</span><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg><strong>Attendance</strong></div>
+<div class="header-actions"><button aria-label="Notifications" class="button v6-bell" id="v6-bell" type="button"><svg class="icon" viewbox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 13h4"></path></svg><span hidden="" id="v6-unread">0</span></button><span class="header-account" hidden="" id="signed-in-account"></span>
+<button aria-controls="settings" aria-haspopup="dialog" class="button" id="open-settings"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"></path><circle cx="12" cy="12" r="7"></circle></svg> Settings</button>
+<span class="badge">LOCAL</span>
+</div>
+<div aria-hidden="true" class="loading-line"></div>
 </header>
-<dialog class="card settings-dialog" id="settings" aria-labelledby="settings-title">
-  <form method="dialog">
-    <h2 id="settings-title">Settings</h2>
-    <label class="settings-field" for="default-page">
-      Page to show on startup
-      <select id="default-page"><option value="overview">Overview</option><option value="details">Details</option></select>
-    </label>
-    <label class="settings-field" for="default-day">
-      Day to show on startup
-      <select id="default-day"><option value="today">Today</option><option value="yesterday">Yesterday</option></select>
-    </label>
-    <label class="settings-field" for="launch-at-login">
-      Open browser at login
-      <input id="launch-at-login" type="checkbox" aria-describedby="startup-description" disabled>
-    </label>
-    <p class="settings-description" id="startup-description">Open the dashboard in your browser when you sign in. The server always starts in the background.</p>
-    <p class="settings-error" id="startup-error" role="status" hidden></p>
-    <div class="settings-actions"><button class="button">Done</button></div>
-  </form>
+<div class="dashboard-content">
+<div class="page-heading"><h1>Overview</h1><p>Monitor campus attendance, daily goals and screen-lock activity.</p><div class="v5-privacy-banner">Privacy mode is on. <button id="v5-show" type="button">Show values</button></div></div>
+<dialog aria-labelledby="settings-title" class="card settings-dialog" id="settings">
+<form method="dialog">
+<h2 id="settings-title">Settings</h2><button aria-label="Close settings" class="settings-close" id="close-settings" type="button"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+<label class="settings-field" for="theme">Theme <select id="theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+<label class="settings-field" for="default-day">Default day <select id="default-day"><option value="today">Today</option><option value="yesterday">Yesterday</option></select></label>
+<label class="settings-field" for="launch-at-login">Open browser at login <input aria-describedby="startup-description" disabled="" id="launch-at-login" type="checkbox"/></label>
+<p class="settings-description" id="startup-description">The local server starts in the background regardless of this browser preference.</p>
+<p class="settings-error" hidden="" id="startup-error" role="status"></p>
+<div class="settings-actions"><button class="button" id="settings-done" type="button">Done</button></div>
+</form>
 </dialog>
-<div id="daily-session" hidden>
-  <dl class="card session-details" id="session-details" aria-label="Session details" hidden>
-    <div><dt>Username</dt><dd id="session-username">—</dd></div>
-    <div><dt>Workstation</dt><dd id="session-workstation">—</dd></div>
-  </dl>
-</div>
 <div class="toolbar">
-  <h1 id="page-title">Overview</h1>
-  <div class="toolbar-actions">
-    <div class="day-controls">
-      <div class="tabs" id="day-tabs" role="group" aria-label="Attendance day">
-        <button id="today" aria-pressed="true">Today</button>
-        <button id="yesterday" aria-pressed="false">Yesterday</button>
-      </div>
-      <button id="refresh" class="button">Refresh data</button>
-    </div>
-    <time id="last-refresh" title="Campus time (Africa/Casablanca)" hidden></time>
-  </div>
+<div aria-label="Attendance day" class="tabs" role="group">
+<button aria-pressed="true" id="today">Today</button>
+<button aria-pressed="false" id="yesterday">Yesterday</button>
 </div>
-<div id="day-report" hidden>
-  <section id="overview-page" class="overview-summary" aria-label="Overview">
-    <article class="card summary-column" id="logged-card" aria-labelledby="net-title">
-      <div class="card-top">
-        <h2 id="net-title">Net attendance</h2>
-        <span class="pill" id="net-kind" hidden>Estimated</span>
-      </div>
-      <div class="metric-value" id="logged">—</div>
-      <p>Total log time minus observed screen locks</p>
-      <section id="goal-panel" aria-labelledby="goal-title">
-        <div class="goal-line"><h3 id="goal-title">Today’s goal</h3><strong id="goal-label">—</strong></div>
-        <div class="progress"><div id="progress"></div></div>
-        <div class="goal-foot"><span id="remaining">Waiting for your attendance</span><span id="percent">—</span></div>
-        <details class="goal-note">
-          <summary>Why the target differs</summary>
-          <p>Xattendo’s daily target can differ from Attendo’s because Attendo calculates it incorrectly.</p>
-          <p>Xattendo divides the hours you still need by the counted days left and rounds up.</p>
-        </details>
-      </section>
-    </article>
-    <div id="overview-period">
-      <section class="card summary-column summary-current" id="current-period" aria-labelledby="period-progress-title">
-        <h2 id="period-progress-title">Current period</h2>
-        <p id="period-progress-dates"></p>
-        <div class="period-gauge" id="period-gauge">
-          <strong id="period-progress-total"></strong>
-          <span id="period-progress-target"></span>
-        </div>
-        <div class="period-badges">
-          <span class="period-badge" id="period-progress-status"></span>
-          <span class="period-count" id="period-progress-count"></span>
-        </div>
-      </section>
-    </div>
-    <article class="card summary-column summary-locked" aria-labelledby="locked-title">
-      <h2 id="locked-title">Total locked time</h2>
-      <div class="metric-value" id="overview-locked">—</div>
-      <div class="metric-bottom">Observed screen locks for the selected day</div>
-    </article>
-    <section class="card hourly-locks" id="overview-hours" aria-labelledby="hourly-title">
-      <div class="hourly-heading">
-        <div><h2 id="hourly-title">Screen locks by hour</h2><p id="hourly-date"></p></div>
-        <a href="#history">Lock history <span aria-hidden="true">→</span></a>
-      </div>
-      <div id="hourly-visual">
-        <div id="hourly-chart" hidden>
-          <div class="hourly-plot">
-            <div class="hour-axis" aria-hidden="true"><span id="hour-max"></span><span id="hour-mid"></span><span>0m</span></div>
-            <div class="hour-bars" id="hour-bars" role="radiogroup" aria-label="Locked minutes by hour"></div>
-          </div>
-          <div class="hourly-footer"><output id="hour-value"></output><span class="hour-upcoming" id="hour-upcoming" hidden>Upcoming hours</span></div>
-        </div>
-        <p id="hourly-empty" hidden>Hourly lock history is unavailable.</p>
-      </div>
-    </section>
-  </section>
-  <section id="details-page" aria-label="Details" hidden>
-    <div id="details-metrics">
-      <section class="card daily-result" id="detail-net-summary" aria-labelledby="detail-net-title">
-        <h2 id="detail-net-title">Net attendance</h2>
-        <div class="metric-value" id="daily-net">—</div>
-        <p class="daily-context"><time id="detail-date"></time><span id="detail-estimated" hidden>Estimated</span></p>
-        <p class="net-source" id="net-source" hidden></p>
-      </section>
-      <section class="card daily-totals" aria-labelledby="daily-totals-title">
-        <h2 id="daily-totals-title">Daily totals</h2>
-        <dl class="daily-breakdown">
-          <div id="intra-card"><dt>Total log time<small>42 Intra</small></dt><dd class="metric-value" id="intra-total">—</dd></div>
-          <div><dt>Total locked time<small>42-lock</small></dt><dd class="metric-value" id="locked">—</dd></div>
-          <div id="recorded-card">
-            <dt>Attendo recorded<small>1337 Attendo profile</small></dt>
-            <dd class="recorded-values">
-              <span class="metric-value" id="recorded">—</span>
-              <small id="recorded-expected" title="Net attendance rounds up at 35 minutes past the hour" hidden></small>
-            </dd>
-            <dd class="recorded-note" id="recorded-description" hidden></dd>
-          </div>
-          <div id="historical-card" hidden><dt>Recorded attendance<small>1337 Attendo profile</small></dt><dd class="metric-value" id="historical-total">—</dd></div>
-        </dl>
-      </section>
-    </div>
-    <section class="card history" id="history" aria-labelledby="history-title">
-      <div class="section-heading"><h2 id="history-title">Lock history</h2><span class="count" id="count">0 periods</span></div>
-      <div id="history-graph"><p>Locked minutes by hour</p></div>
-      <details id="lock-periods">
-        <summary>Lock and unlock times</summary>
-        <div class="table-wrap" tabindex="0" role="region" aria-label="Lock periods">
-          <table>
-            <thead><tr><th scope="col">Locked at</th><th scope="col">Unlocked at</th><th scope="col">Duration</th><th scope="col">Status</th></tr></thead>
-            <tbody id="periods"><tr><td colspan="4" class="empty">Loading observed lock periods…</td></tr></tbody>
-          </table>
-        </div>
-      </details>
-      <details class="history-help">
-        <summary>Missing lock history?</summary>
-        <p>Log in again at every workstation you previously used and let the app run there to collect any lock records still available on that station.</p>
-      </details>
-    </section>
-    <details class="notes"><summary>About these numbers</summary>
-      <p>42 Intra provides daily location totals in <code>locations_stats.json</code>. Xattendo combines screen-lock intervals from <code>/run/42-lock/seat0.json</code> with saved workstation history and counts overlapping intervals once. Unobserved locks may be missing.</p>
-      <p>Attendo’s recorded hours already exclude locks. Reports update when you refresh.</p>
-      <ul id="warnings"></ul>
-    </details>
-  </section>
-  <section id="week-page" aria-label="Week" hidden>
-    <section class="card time-chart" aria-labelledby="time-chart-title">
-      <h2 id="time-chart-title">Total log time by day</h2>
-      <p id="time-chart-period"></p>
-      <div id="time-chart-legend" hidden>
-        <span class="legend-unlocked">Unlocked</span>
-        <span class="legend-locked">Screen locked</span>
-      </div>
-      <ol id="time-chart-days"></ol>
-    </section>
-    <section class="card attendance" id="attendance"><div class="section-heading"><div><h2>Attendance</h2></div></div><div id="attendance-periods" class="attendance-periods">Connect to Attendo to see your recorded attendance.</div><p class="attendance-help">Expand a day to see its attendance and lock history. Recorded totals already exclude locks.</p></section>
-  </section>
+<label class="v5-date-control" for="v5-date">Date <input id="v5-date" type="date"/></label><button class="button" id="refresh">Refresh data</button>
 </div>
-<footer><div id="status" role="status" aria-live="polite">Loading your attendance…</div></footer>
+<h2 class="section-kicker">Attendance summary</h2>
+<div aria-hidden="true" class="loading-dashboard"><div class="card skeleton-card skeleton-hero"><span class="skeleton" style="--w:35%"></span><span class="skeleton skeleton-value" style="--w:48%"></span><span class="skeleton" style="--w:62%"></span><span class="skeleton" style="--w:100%"></span><span class="skeleton" style="--w:42%"></span></div><div class="card skeleton-card skeleton-metric"><span class="skeleton" style="--w:65%"></span><span class="skeleton skeleton-value" style="--w:50%"></span><span class="skeleton" style="--w:80%"></span></div><div class="card skeleton-card skeleton-metric"><span class="skeleton" style="--w:65%"></span><span class="skeleton skeleton-value" style="--w:50%"></span><span class="skeleton" style="--w:80%"></span></div><div class="card skeleton-card skeleton-period"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:64%"></span><span class="skeleton skeleton-ring"></span><span class="skeleton" style="--w:37%"></span><span class="skeleton" style="--w:55%"></span></div><div class="card skeleton-card skeleton-history"><span class="skeleton" style="--w:35%"></span><div class="skeleton-row"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:25%"></span></div><div class="skeleton-row"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:25%"></span></div><div class="skeleton-row"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:25%"></span></div></div><div class="card skeleton-card skeleton-history"><span class="skeleton" style="--w:35%"></span><div class="skeleton-row"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:25%"></span></div><div class="skeleton-row"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:25%"></span></div><div class="skeleton-row"><span class="skeleton" style="--w:45%"></span><span class="skeleton" style="--w:25%"></span></div></div></div>
+<div hidden="" id="day-report">
+<section aria-label="Daily attendance" class="cards" id="daily-cards">
+<article class="hero card" id="logged-card">
+<div class="card-top"><h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Net attendance</h2><span class="pill" id="kind">Estimated</span></div>
+<div class="metric-value" id="logged">—</div>
+<p>Location time minus observed screen locks</p>
+<div id="goal-panel">
+<div class="goal-line"><span>Daily target</span><strong id="goal-label">—</strong></div>
+<div class="progress"><div id="progress"></div></div>
+<div class="goal-foot"><span id="remaining">Waiting for your attendance</span><span id="percent">—</span></div>
+<details class="goal-note"><summary>About the daily target</summary><p>The recommendation may differ from Attendo. Xattendo divides the remaining required hours by the remaining counted days and rounds up.</p></details>
+</div>
+</article>
+<article class="card metric" id="recorded-card">
+<h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 3 3 5-6"></path></svg>Attendo recorded</h2>
+<div class="metric-value recorded-value"><span id="recorded">—</span> <span hidden="" id="recorded-expected"></span></div>
+<p id="recorded-description">Recorded campus attendance</p>
+<div class="metric-bottom">Screen locks already excluded</div>
+</article>
+<article class="card metric" id="intra-card">
+<h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M20 10c0 6-8 11-8 11s-8-5-8-11a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>Intra total time</h2><div class="metric-value" id="intra-total">—</div>
+<p>Campus location time</p><div class="metric-bottom">Includes screen locks</div>
+</article>
+<article class="card metric" hidden="" id="historical-card">
+<h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 3 3 5-6"></path></svg>Recorded attendance</h2><div class="metric-value" id="historical-total">—</div>
+<p>Attendance for the selected day</p><div class="metric-bottom">From Attendo</div>
+</article>
+</section>
+<section aria-labelledby="period-progress-title" class="card period-progress" hidden="" id="current-period-progress">
+<div class="period-progress-info"><h2 id="period-progress-title">Current period</h2><p id="period-progress-dates"></p></div>
+<div class="period-gauge" id="period-gauge"><strong id="period-progress-total"></strong><span id="period-progress-target"></span></div>
+<div class="period-badges"><span class="period-badge" id="period-progress-status"></span><span class="period-count" id="period-progress-count"></span></div>
+</section>
+<section class="card attendance" id="attendance">
+<div class="section-heading"><h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="5"></rect><path d="M16 3v4M8 3v4M3 10h18M8 15h2m4 0h2"></path></svg>Attendance</h2></div>
+<div class="attendance-periods" id="attendance-periods">Connect to Attendo to view attendance.</div>
+<p class="attendance-help">Expand a period and day to see recorded time and lock history. Recorded totals exclude locks.</p>
+</section>
+<section class="card history" id="history">
+<div class="section-heading"><div class="lock-heading"><h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Lock history</h2><span class="lock-total">Total locked <strong id="locked">—</strong></span></div><span class="count" id="count">0 periods</span></div>
+<div aria-label="Lock periods" class="table-wrap" role="region" tabindex="0">
+<table><thead><tr><th scope="col">Locked at</th><th scope="col">Unlocked at</th><th scope="col">Duration</th><th scope="col">Status</th></tr></thead><tbody id="periods"><tr><td class="empty" colspan="4">Loading lock periods…</td></tr></tbody></table>
+</div>
+<p class="history-help"><strong>Missing records?</strong> Sign in again on previous workstations and allow Xattendo to collect any remaining lock records.</p>
+</section>
+<details class="notes"><summary>About these numbers</summary><p>Estimated time for today and yesterday subtracts observed locks from Intra location time. Recorded Attendo totals exclude locks already. Refresh to update the report; lock history may be incomplete.</p><ul id="warnings"></ul></details>
+</div><div hidden="" id="v5-overview-extra">
+<div class="v5-overview-grid">
+<article class="card v5-card v5-planner"><div class="analytics-card-heading"><div><h2>Daily goal planner</h2><p>Estimated attendance · selected day</p></div><span class="period-badge" id="v5-live-label">Waiting</span></div>
+<div class="v5-planner-top"><div><span class="v5-muted">Net attendance</span><strong class="v5-number" id="v5-net">—</strong></div><div><span class="v5-muted">Goal</span><strong class="v5-number" id="v5-target">—</strong></div></div>
+<div aria-label="Personal daily goal" aria-valuemax="100" aria-valuemin="0" class="analytics-progress" id="v5-progress" role="progressbar"><div></div></div>
+<div class="v5-goal-control"><label for="v5-goal-slider">Personal daily target</label><output id="v5-goal-output">8h</output></div><input id="v5-goal-slider" max="24" min="1" step="0.5" type="range" value="8"/><button class="v5-link" id="v5-auto-goal" type="button">Use Attendo recommendation</button>
+<div class="analytics-selected"><div><span>Remaining</span><strong id="v5-remaining">—</strong></div><div><span>Estimated finish</span><strong id="v5-finish">—</strong></div><div><span>Last updated</span><strong id="v5-age">—</strong></div></div><p class="v5-muted" id="v5-estimate-note">Finish time assumes uninterrupted attendance; not an official prediction.</p></article>
+<article class="card v5-card"><div class="analytics-card-heading"><div><h2>Activity timeline</h2><p>Observed screen locks and unlocks</p></div><span class="period-badge" id="v5-event-count">—</span></div><div class="v5-timeline" id="v5-timeline"><p class="v5-muted">Waiting for lock records…</p></div><p class="v5-muted">Only events supplied by the local history are shown.</p></article>
+</div>
+<div class="v6-widget-grid" id="v6-widgets"></div></div>
+<section aria-label="Attendance analytics" hidden="" id="analytics-page">
+<div class="analytics-toolbar"><div aria-label="Attendance period" class="tabs" role="group"><button aria-pressed="true" data-period="Current period" type="button">Current period</button><button aria-pressed="false" data-period="Previous period" type="button">Previous period</button></div><div class="analytics-actions"><button class="button" disabled="" id="analytics-export" type="button"><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"></path></svg> Export CSV</button><button class="button" id="analytics-refresh" type="button">Refresh data</button></div></div>
+<div aria-hidden="true" hidden="" id="analytics-loading"><div class="analytics-metrics"><div class="card skeleton-card analytics-skeleton-metric"><span class="skeleton" style="--w:65%"></span><span class="skeleton skeleton-value" style="--w:55%"></span><span class="skeleton" style="--w:80%"></span></div><div class="card skeleton-card analytics-skeleton-metric"><span class="skeleton" style="--w:65%"></span><span class="skeleton skeleton-value" style="--w:55%"></span><span class="skeleton" style="--w:80%"></span></div><div class="card skeleton-card analytics-skeleton-metric"><span class="skeleton" style="--w:65%"></span><span class="skeleton skeleton-value" style="--w:55%"></span><span class="skeleton" style="--w:80%"></span></div><div class="card skeleton-card analytics-skeleton-metric"><span class="skeleton" style="--w:65%"></span><span class="skeleton skeleton-value" style="--w:55%"></span><span class="skeleton" style="--w:80%"></span></div></div><div class="card skeleton-card analytics-skeleton-chart"><span class="skeleton" style="--w:35%"></span><span class="skeleton" style="--w:23%"></span><div class="analytics-skeleton-bars"><span class="skeleton" style="--h:55%"></span><span class="skeleton" style="--h:80%"></span><span class="skeleton" style="--h:60%"></span><span class="skeleton" style="--h:45%"></span><span class="skeleton" style="--h:70%"></span><span class="skeleton" style="--h:35%"></span><span class="skeleton" style="--h:65%"></span></div></div><div class="card skeleton-card"><span class="skeleton" style="--w:40%"></span><span class="skeleton skeleton-value" style="--w:25%"></span><span class="skeleton"></span></div></div>
+<div class="card analytics-empty" hidden="" id="analytics-empty" role="status"><h2 id="analytics-empty-title">No attendance data</h2><p id="analytics-empty-message"></p></div>
+<div hidden="" id="analytics-content">
+<div class="analytics-metrics">
+<article class="card analytics-metric"><div><h2>Total attendance</h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div><strong class="analytics-value accent" id="analytics-total">—</strong><p>Recorded by Attendo</p></article>
+<article class="card analytics-metric"><div><h2>Remaining target</h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg></div><strong class="analytics-value" id="analytics-remaining">—</strong><p>To reach the configured goal</p></article>
+<article class="card analytics-metric"><div><h2>Daily average</h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><path d="M3 3v18h18M7 16l5-5 4 3 5-7"></path></svg></div><strong class="analytics-value" id="analytics-average">—</strong><p>Average across counted days</p></article>
+<article class="card analytics-metric"><div><h2>Target completed</h2><svg aria-hidden="true" class="icon" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 3 3 5-6"></path></svg></div><strong class="analytics-value success" id="analytics-percent">—</strong><p id="analytics-count">—</p></article>
+</div>
+<article class="card analytics-chart-card"><div class="analytics-card-heading"><div><h2>Attendance activity</h2><p>Daily recorded hours</p></div><span class="analytics-date" id="analytics-range"></span></div>
+<div class="analytics-chart-scroll"><div aria-label="Daily attendance chart" class="analytics-chart" id="analytics-chart" role="group"></div></div>
+<div class="analytics-legend"><span><i></i> Counted</span><span><i class="uncounted"></i> Not counted</span><span hidden="" id="analytics-guide-legend"><i class="guide"></i> Today's recommended target</span></div>
+<div aria-live="polite" class="analytics-selected"><div><span>Selected day</span><strong id="analytics-selected-date">—</strong></div><div><span>Recorded time</span><strong id="analytics-selected-hours">—</strong></div><div><span>Attendance status</span><strong id="analytics-selected-status">—</strong></div></div>
+</article>
+<article class="card analytics-goal"><div class="analytics-card-heading"><div><h2>Period goal</h2><p id="analytics-goal-note">Based on the current configured target.</p></div><span class="period-badge" id="analytics-goal-badge">—</span></div><div class="analytics-goal-values"><strong id="analytics-goal-total">—</strong><span id="analytics-goal-percent">—</span></div><div aria-label="Period goal progress" aria-valuemax="100" aria-valuemin="0" class="analytics-progress" id="analytics-progress" role="progressbar"><div></div></div><p id="analytics-goal-message"></p></article>
+<article class="card analytics-breakdown"><div class="analytics-card-heading"><div><h2>Daily breakdown</h2><p>All records returned for this period.</p></div></div><div aria-label="Daily attendance records" class="table-wrap" role="region" tabindex="0"><table><thead><tr><th scope="col">Date</th><th scope="col">Recorded time</th><th scope="col">Status</th></tr></thead><tbody id="analytics-rows"></tbody></table></div></article>
+<article class="card v5-card v5-heatmap-card" id="v5-heatmap-card"><div class="analytics-card-heading"><div><h2>Attendance heatmap</h2><p>Last 12 months · available recorded attendance</p></div><span class="analytics-date" id="v5-coverage">No records yet</span></div><div class="v5-heat-scroll"><div aria-label="Attendance calendar" class="v5-heatmap" id="v5-heatmap"></div></div><div class="v5-heat-footer"><span id="v5-heat-detail">Select a day for details</span><div class="v5-legend"><span>Unknown</span><i data-level="unknown"></i><span>Less</span><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i><span>More</span></div></div><div class="analytics-selected"><div><span>Current recorded streak</span><strong id="v5-streak">—</strong></div><div><span>Longest known streak</span><strong id="v5-best">—</strong></div><div><span>Days with data</span><strong id="v5-known">—</strong></div></div><p class="v5-muted">Missing dates are unknown, not zero hours. Streaks use consecutive positive recorded days only.</p></article>
+<article class="card v6-card" id="v6-advanced"><div class="analytics-card-heading"><div><h2>Recorded activity trends</h2><p>Available daily records · choose a chart style</p></div><select aria-label="Chart style" id="v6-chart-type"><option value="bar">Bar</option><option value="line">Line</option><option value="area">Area</option></select></div><div class="v6-chart" id="v6-trend"></div></article></div>
+<p aria-live="polite" id="analytics-status" role="status"></p>
+</section><section aria-label="Settings" hidden="" id="settings-page">
+<div class="card v5-card" id="settings-native"></div>
+<article class="card v5-card"><h2>Attendance preferences</h2><p class="v5-muted">Personal dashboard preferences, stored in this browser.</p>
+<label class="settings-field">Custom daily goal (hours)<input id="v5-goal" max="24" min="1" placeholder="Automatic" step="0.5" type="number" aria-describedby="v5-goal-help"/></label><p id="v5-goal-help" role="status">Leave empty to use the automatic attendance goal.</p>
+<label class="settings-field">Auto-refresh<select id="v5-refresh-rate"><option value="0">Off</option><option value="60">Every minute</option><option value="120">Every 2 minutes</option><option value="300">Every 5 minutes</option></select></label>
+<label class="settings-field">Goal notifications<input id="v5-notify" type="checkbox"/></label>
+<label class="settings-field">Privacy mode<input id="v5-private" type="checkbox"/></label>
+<label class="settings-field">Remember attendance history locally<input id="v5-remember" type="checkbox"/></label>
+<p class="v5-muted">History is saved only for the signed-in account when enabled. No records are sent to a new service.</p>
+<button class="button v5-secondary" id="v5-clear" type="button">Clear saved history</button>
+</article>
+<article class="card v5-card"><h2>Display &amp; shortcuts</h2><p class="v5-muted">Use Ctrl / Cmd + K to navigate or run actions.</p><button class="button v5-secondary" id="v5-fullscreen" type="button">Toggle full screen</button></article>
+</section><section hidden="" id="v6-pages">
+<section data-v6-page="calendar" hidden=""><article class="card v6-card"><div class="analytics-card-heading"><div><h2 id="v6-month-title">Month</h2><p>Unknown dates are not absences.</p></div><div class="v6-actions"><button aria-label="Previous month" class="button" id="v6-month-prev">←</button><button class="button" id="v6-month-today">Today</button><button aria-label="Next month" class="button" id="v6-month-next">→</button></div></div><div class="v6-calendar" id="v6-calendar"></div><p aria-live="polite" class="v5-muted" id="v6-calendar-detail">Select a date to see its recorded time.</p><button class="button" disabled="" id="v6-calendar-open">Open daily report</button></article></section>
+<section data-v6-page="reports" hidden=""><div class="v6-actions"><label>Month <input id="v6-report-month" type="month"/></label><button class="button" id="v6-report-export">Export CSV</button></div><div class="v6-metrics" id="v6-month-metrics"></div><article class="card v6-card"><div class="analytics-card-heading"><div><h2>Monthly attendance</h2><p>Recorded dates only; totals may be incomplete.</p></div></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Recorded hours</th></tr></thead><tbody id="v6-report-rows"></tbody></table></div></article></section>
+<section data-v6-page="insights" hidden=""><article class="card v6-card"><div class="analytics-card-heading"><div><h2>Attendance forecast</h2><p>Based on counted days in the current attendance period.</p></div><span class="period-badge">Estimate</span></div><div class="v6-metrics" id="v6-forecast-metrics"></div><div class="v6-chart" id="v6-forecast-chart"></div><p class="v5-muted" id="v6-forecast-note"></p></article><article class="card v6-card"><h2>Smart attendance insights</h2><div class="v6-insight-list" id="v6-insights"></div></article></section>
+<section data-v6-page="notifications" hidden=""><article class="card v6-card"><div class="analytics-card-heading"><div><h2>Notification center</h2><p>Local alerts during this browser session.</p></div><div class="v6-actions"><button class="button" id="v6-mark">Mark all read</button><button class="button" id="v6-clear-notifications">Clear</button></div></div><div class="v6-insight-list" id="v6-notifications"></div></article></section>
+<section data-v6-page="customize" hidden=""><article class="card v6-card"><div class="analytics-card-heading"><div><h2>Overview widgets</h2><p>Drag rows or use arrows to reorder. Choose width and visibility.</p></div><button class="button" id="v6-reset-layout">Reset layout</button></div><div id="v6-widget-options"></div></article><article class="card v6-card"><h2>Appearance</h2><label class="settings-field">Accent color <select id="v6-accent"><option value="purple">Original purple</option><option value="blue">Blue</option><option value="teal">Teal</option><option value="rose">Rose</option></select></label><label class="settings-field">Reduce motion <input id="v6-motion" type="checkbox"/></label><label class="settings-field">Compact cards <input id="v6-compact" type="checkbox"/></label></article><article class="card v6-card"><h2>Preference backup</h2><p class="v5-muted">Settings only; never exports accounts or attendance.</p><div class="v6-actions"><button class="button" id="v6-backup">Export preferences</button><label class="button" for="v6-import">Import preferences</label><input accept="application/json,.json" hidden="" id="v6-import" type="file"/></div></article></section>
+<section data-v6-page="system" hidden=""><article class="card v6-card"><div class="analytics-card-heading"><div><h2>Connection monitor</h2><p>Check local server and upstream session status.</p></div><button class="button" id="v6-check">Check connections</button></div><div class="v6-insight-list" id="v6-connections"></div></article><article class="card v6-card"><h2>Developer diagnostics</h2><div class="v6-insight-list" id="v6-diagnostics"></div></article><article class="card v6-card"><h2>Updates &amp; installation</h2><p class="v5-muted">V6.1 · custom frontend. Upstream releases are separate.</p><div class="v6-actions"><button class="button" id="v6-update">Check GitHub releases</button><a class="button" href="https://github.com/mohamednasih/attendo/releases" rel="noopener noreferrer" target="_blank">View releases</a><button class="button" id="v6-install">Install web app</button></div><p class="v5-muted" id="v6-update-status" role="status"></p><p class="v5-muted" id="v6-install-status"></p></article><article class="card v6-card"><h2>Offline access</h2><label class="settings-field">Save an offline attendance snapshot <input id="v6-offline-opt" type="checkbox"/></label><p class="v5-muted">Opt-in, on this browser only. Includes dates, recorded hours and an account identifier to prevent mixing records; not tokens or lock details. Anyone with access to this browser can read it.</p><button class="button" id="v6-delete-cache">Delete snapshot</button></article></section>
+<section data-v6-page="focus" hidden=""><article class="card v6-focus"><div class="v6-actions"><button class="button" id="v6-focus-exit">Exit focus</button><button class="button" id="v6-focus-full">Full screen</button></div><p class="v5-muted">Estimated effective attendance · selected day</p><strong id="v6-focus-time">—</strong><p class="v5-muted" id="v6-focus-age">Waiting for data</p><div class="analytics-progress" id="v6-focus-progress"><div></div></div><div class="v6-metrics" id="v6-focus-metrics"></div></article></section>
+</section>
+
+<dialog aria-label="Quick actions" class="card v5-palette" id="v5-palette"><div class="v5-search"><input autocomplete="off" id="v5-search" placeholder="Search pages and actions…" type="search"/><button class="button v5-secondary" id="v5-palette-close" type="button">Esc</button></div><div class="v5-muted v5-palette-label">NAVIGATION &amp; ACTIONS</div><div id="v5-commands"></div><div class="v5-palette-footer">↑ ↓ Navigate · Enter Select · Esc Close</div></dialog>
+<div aria-live="polite" id="v5-toasts" role="status"></div>
+<footer><div aria-live="polite" id="status" role="status">Loading attendance…</div></footer>
+</div>
 </main>
-</body></html>
+<script>
+(() => {
+  const dialog = document.getElementById('settings');
+  const opener = document.getElementById('open-settings');
+  const dismiss = () => { if (dialog.open) dialog.close(); };
+  document.getElementById('settings-done').addEventListener('click', dismiss);
+  document.getElementById('close-settings').addEventListener('click', dismiss);
+  dialog.querySelector('form').addEventListener('submit', event => {
+    event.preventDefault();
+    dismiss();
+  });
+  let outside = false;
+  const isOutside = event => {
+    const rect = dialog.getBoundingClientRect();
+    return event.target === dialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom);
+  };
+  dialog.addEventListener('pointerdown', event => { outside = isOutside(event); });
+  dialog.addEventListener('click', event => { if (outside && isOutside(event)) dismiss(); outside = false; });
+  dialog.addEventListener('cancel', event => { event.preventDefault(); dismiss(); });
+  dialog.addEventListener('close', () => { if (opener.getClientRects().length) opener.focus({preventScroll: true}); });
+})();
+</script>
+<script>
+(() => {
+  const main = document.getElementById('overview');
+  const links = [...document.querySelectorAll('#sidebar .nav[data-view]')];
+  const pages = {
+    calendar: ["Calendar", "Browse recorded attendance by date.", "Calendar"],
+    reports: ["Reports", "Monthly summaries and exportable records.", "Reports"],
+    insights: ["Insights", "Forecasts and attendance patterns.", "Insights"],
+    notifications: ["Notifications", "Your local dashboard alerts.", "Notifications"],
+    customize: ["Customize", "Make your dashboard your own.", "Customize"],
+    system: ["System status", "Connection checks and local diagnostics.", "System status"],
+    focus: ["Focus mode", "A distraction-free attendance display.", "Focus mode"],
+
+    settings: ['Settings', 'Manage your dashboard preferences.', 'Preferences'],
+    overview: ['Overview', 'Monitor campus attendance and daily goals.', 'Attendance summary'],
+    analytics: ['Analytics', 'Track recorded attendance, daily activity and period goals.', 'Attendance analytics'],
+    history: ['Lock history', 'Review screen-lock periods and total locked time.', 'Screen-lock activity'],
+    attendance: ['Attendance', 'Explore recorded attendance by period and day.', 'Attendance records']
+  };
+  let current;
+  function render() {
+    const requested = location.hash.replace(/^#\/?/, '');
+    const view = Object.prototype.hasOwnProperty.call(pages, requested) ? requested : 'overview';
+    if (current === view) return;
+    const previous = current;
+    current = view;
+    main.dataset.view = view;
+    const [title, description, section] = pages[view];
+    main.querySelector('.page-heading h1').textContent = title;
+    main.querySelector('.page-heading p').textContent = description;
+    main.querySelector('.breadcrumb strong').textContent = title;
+    main.querySelector('.section-kicker').textContent = section;
+    document.title = 'Xattendo · ' + title;
+    for (const link of links) {
+      const active = link.dataset.view === view;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    }
+    if (previous !== undefined) {
+      main.classList.remove('view-enter');
+      void main.offsetWidth;
+      main.classList.add('view-enter');
+      window.scrollTo({top: 0, behavior: 'instant'});
+    }
+  }
+  window.addEventListener('hashchange', render);
+  render();
+})();
+</script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const main = $('overview'), page = $('analytics-page');
+  const periodButtons = [...page.querySelectorAll('[data-period]')];
+  const preview = page.hasAttribute('data-preview');
+  const dateFmt = new Intl.DateTimeFormat('en-US', {month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+  const shortFmt = new Intl.DateTimeFormat('en-US', {month:'short',day:'numeric',timeZone:'UTC'});
+  const weekFmt = new Intl.DateTimeFormat('en-US', {weekday:'short',timeZone:'UTC'});
+  const date = str => new Date(str.slice(0,10) + 'T12:00:00Z');
+  const number = v => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  const validDate = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) && Number.isFinite(date(v).getTime());
+  const fmt = h => { if (!number(h)) return '—'; const m = Math.round(h * 60); return `${Math.floor(m/60)}h${m%60 ? ` ${String(m%60).padStart(2,'0')}m` : ''}`; };
+  const set = (id, text) => { $(id).textContent = text; };
+  const node = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el; };
+  let selectedPeriod = 'Current period', snapshot = null, rows = [], current = null, selectedDate = null, request = null, active = false;
+  function loading(on) {
+    $('analytics-loading').hidden = !on;
+    $('analytics-refresh').disabled = on;
+    $('analytics-refresh').textContent = on ? 'Refreshing…' : 'Refresh data';
+    page.setAttribute('aria-busy', String(on));
+    $('analytics-export').disabled = on || !current || !rows.length;
+    if (on) { $('analytics-content').hidden = true; $('analytics-empty').hidden = true; }
+  }
+  function empty(title, message) {
+    current = null; rows = [];
+    $('analytics-content').hidden = true;
+    $('analytics-empty').hidden = false;
+    $('analytics-export').disabled = true;
+    set('analytics-empty-title', title); set('analytics-empty-message', message);
+  }
+  function chooseDay(row) {
+    selectedDate = row?.date || null;
+    set('analytics-selected-date', row ? dateFmt.format(date(row.date)) : '—');
+    set('analytics-selected-hours', row ? fmt(row.hours) : '—');
+    set('analytics-selected-status', row ? row.counted ? 'Counted' : 'Not counted' : '—');
+    for (const button of $('analytics-chart').querySelectorAll('button')) button.setAttribute('aria-pressed', String(button.dataset.date === selectedDate));
+  }
+  function drawChart(guide) {
+    const chart = $('analytics-chart'); chart.replaceChildren();
+    $('analytics-guide-legend').hidden = !number(guide) || guide <= 0;
+    if (!rows.length) { chart.style.setProperty('--chart-min','0px'); chart.append(node('p','analytics-no-days','No daily records for this period.')); chooseDay(null); return; }
+    const highest = Math.max(0, ...rows.map(r=>r.hours), number(guide)?guide:0);
+    const step = Math.max(1, Math.ceil(highest/3)); const max = step*3;
+    chart.style.setProperty('--chart-min',`${Math.max(300, rows.length*43+45)}px`);
+    const axis = node('div','analytics-axis'); axis.setAttribute('aria-hidden','true');
+    const plot = node('div','analytics-plot'), grid = node('div','analytics-gridlines'), columns = node('div','analytics-columns');
+    columns.style.setProperty('--columns', rows.length); grid.setAttribute('aria-hidden','true');
+    for(let i=0;i<4;i++) {const label=node('span','',`${max-i*step}h`),line=node('span'); label.style.top=line.style.top=`${i*100/3}%`; axis.append(label); grid.append(line);}
+    if (number(guide) && guide>0) {const line=node('span','target'); line.style.top=`${100-guide/max*100}%`; grid.append(line);}
+    for (const row of rows) {
+      const button=node('button',`analytics-day${row.counted?'':' uncounted'}`); button.type='button'; button.dataset.date=row.date; button.setAttribute('aria-label',`${dateFmt.format(date(row.date))}, ${fmt(row.hours)}, ${row.counted?'counted':'not counted'}`);
+      const track=node('span','analytics-bar-track'),bar=node('span','analytics-bar'),label=node('span','analytics-day-label',weekFmt.format(date(row.date))),tip=node('span','analytics-tooltip',fmt(row.hours));
+      tip.setAttribute('aria-hidden','true'); bar.style.setProperty('--bar',`${row.hours/max*100}%`); button.style.setProperty('--bar-px',`${row.hours/max*210}px`); track.append(bar); label.append(node('small','',shortFmt.format(date(row.date)))); button.append(track,label,tip);
+      button.addEventListener('click',()=>chooseDay(row)); columns.append(button);
+    }
+    plot.append(grid,columns); chart.append(axis,plot);
+    chooseDay(rows.find(r=>r.date===selectedDate) || [...rows].reverse().find(r=>r.counted) || rows[0]);
+  }
+  function render() {
+    if (!snapshot) return;
+    for (const b of periodButtons) b.setAttribute('aria-pressed', String(b.dataset.period===selectedPeriod));
+    const report=snapshot.report;
+    current=(Array.isArray(report?.attendance_periods)?report.attendance_periods:[]).find(p=>p.label===selectedPeriod);
+    if (!current || !number(current.total) || !validDate(current.start) || !validDate(current.end)) { empty('No period available', `Attendo has not returned the ${selectedPeriod.toLowerCase()}. Try the other period or refresh.`); return; }
+    rows=(Array.isArray(current.days)?current.days:[]).filter(r=>validDate(r.date)&&number(r.hours)&&typeof r.counted==='boolean').map(r=>({...r,date:r.date.slice(0,10)})).sort((a,b)=>a.date.localeCompare(b.date));
+    const counted=rows.filter(r=>r.counted), total=current.total;
+    const target=number(report.attendance_goal?.target_seconds)&&report.attendance_goal.target_seconds>0?report.attendance_goal.target_seconds/3600:null;
+    const percent=target===null?null:Math.round(total/target*100), reached=target!==null&&total>=target;
+    const remaining=target===null?null:Math.max(0,target-total), average=counted.length?counted.reduce((sum,r)=>sum+r.hours,0)/counted.length:null;
+    const guide=selectedPeriod==='Current period'&&number(report.attendance_goal?.daily_seconds)?report.attendance_goal.daily_seconds/3600:null;
+    set('analytics-total',fmt(total));set('analytics-remaining',fmt(remaining));set('analytics-average',fmt(average));set('analytics-percent',percent===null?'—':`${percent}%`);set('analytics-count',`${counted.length} / 7 days counted`);
+    set('analytics-range',dateFmt.formatRange(date(current.start),date(current.end)));
+    set('analytics-goal-total',`${fmt(total)}${target!==null?` / ${fmt(target)}`:''}`);set('analytics-goal-percent',percent===null?'—':`${percent}%`);
+    set('analytics-goal-badge',target===null?'Target unavailable':reached?'Target reached':selectedPeriod==='Previous period'?'Previous period':'In progress');
+    $('analytics-goal-badge').classList.toggle('target-reached',reached);
+    set('analytics-goal-message',target===null?'Attendo did not return a target.':reached?'Configured target reached.':`${fmt(remaining)} ${selectedPeriod==='Previous period'?'below the configured target.':'remaining to reach your target.'}`);
+    const progress=$('analytics-progress');progress.classList.toggle('reached',reached);progress.firstElementChild.style.width=`${Math.min(100,percent??0)}%`;
+    if(percent===null)progress.removeAttribute('aria-valuenow');else progress.setAttribute('aria-valuenow',String(Math.min(100,percent)));
+    progress.setAttribute('aria-valuetext',percent===null?'Target unavailable':`${percent}% of target`);
+    drawChart(guide);
+    const tbody=$('analytics-rows');tbody.replaceChildren();
+    for(const row of rows){const tr=node('tr'),status=node('td'),badge=node('span',`day-count-status${row.counted?' counted':''}`,row.counted?'Counted':'Not counted');status.append(badge);tr.append(node('td','',dateFmt.format(date(row.date))),node('td','',fmt(row.hours)),status);tbody.append(tr);}
+    if(!rows.length){const tr=node('tr'),td=node('td','empty','No daily records available.');td.colSpan=3;tr.append(td);tbody.append(tr);}
+    $('analytics-empty').hidden=true;$('analytics-content').hidden=false;$('analytics-export').disabled=!rows.length;
+  }
+  async function load(force=false) {
+    if (!active || request) return;
+    const controller=new AbortController();request=controller;loading(true);set('analytics-status','Loading attendance records…');
+    try {
+      let data;
+      if(preview){await new Promise(resolve=>setTimeout(resolve,750));data=JSON.parse($('analytics-demo-data').textContent);}
+      else {
+        const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Casablanca',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));
+        const day=`${parts.year}-${parts.month}-${parts.day}`;
+        const response=await fetch(`/api/dashboard?date=${encodeURIComponent(day)}${force?'&refresh=1':''}`,{cache:'no-store',signal:controller.signal});
+        data=await response.json();if(!response.ok)throw new Error(data.error||'Unable to load attendance.');
+      }
+      if(request!==controller||!active)return;
+      if(!data.report)throw new Error(data.errors?.[0]||'Attendo did not return a report.');
+      snapshot=data;render();window.dispatchEvent(new CustomEvent('xattendo:analytics-data',{detail:data}));
+      const warnings=[...(Array.isArray(data.errors)?data.errors:[]),...(data.report.warnings||[]).filter(w=>/stale/i.test(w))];
+      set('analytics-status',preview?'Design preview · Sample data only':warnings.length?`Attendo records · ${warnings.join(' ')}`:'Source: Attendo recorded attendance · Daily averages use counted days only.');
+    }catch(error){if(request!==controller||!active)return;snapshot=null;empty('Unable to load analytics',error.message);set('analytics-status','Use Refresh data to try again.');}
+    finally{if(request===controller){request=null;loading(false);}}
+  }
+  function route(){
+    const next=!main.hidden&&main.dataset.view==='analytics';page.hidden=main.dataset.view!=='analytics';
+    if(next===active)return;active=next;
+    if(!active){request?.abort();request=null;loading(false);snapshot=null;current=null;rows=[];$('analytics-content').hidden=true;$('analytics-empty').hidden=true;return;}
+    load();
+  }
+  periodButtons.forEach(b=>b.addEventListener('click',()=>{selectedPeriod=b.dataset.period;selectedDate=null;for(const btn of periodButtons)btn.setAttribute('aria-pressed',String(btn===b));if(!request)render();}));
+  $('analytics-refresh').addEventListener('click',()=>load(true));
+  $('analytics-export').addEventListener('click',()=>{
+    if(!current||!rows.length)return;
+    const csv=['Date,Recorded hours,Counted',...rows.map(r=>`${r.date},${r.hours},${r.counted?'Yes':'No'}`)].join('\r\n');
+    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=node('a');a.href=url;a.download=`xattendo-${current.start.slice(0,10)}.csv`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+  new MutationObserver(route).observe(main,{attributes:true,attributeFilter:['data-view','hidden']});route();
+})();
+
+</script>
+<script>(() => {
+  const $=id=>document.getElementById(id), main=$('overview'), root=document.documentElement, preview=$('analytics-page').hasAttribute('data-preview');
+  const valid=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0;
+  const dayFmt=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Casablanca',year:'numeric',month:'2-digit',day:'2-digit'}), timeFmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',minute:'2-digit'});
+  const keyDay=d=>{const p=Object.fromEntries(dayFmt.formatToParts(d).map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`};
+  const nowDay=()=>preview?'2026-11-24':keyDay(new Date()), shift=(d,n)=>new Date(Date.parse(d+'T12:00:00Z')+n*86400000).toISOString().slice(0,10), fmt=s=>valid(s)?`${Math.floor(s/3600)}h ${String(Math.floor(s%3600/60)).padStart(2,'0')}m`:'—';
+  const set=(id,v)=>$(id).textContent=v, make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'';if(text!==undefined)e.textContent=text;return e};
+  const get=(k,f)=>{try{return JSON.parse(localStorage.getItem('xattendo-v5-'+k))??f}catch{return f}}, put=(k,v)=>{try{localStorage.setItem('xattendo-v5-'+k,JSON.stringify(v))}catch{}};
+  let prefs={goal:null,rate:60,notify:false,privacy:false,remember:false,collapsed:false,...get('preferences',{})}, reportData=null, analyticsData=null, account=null, records=new Map(), lastSeen=null, heatSelection=null, heatSignature='', lastGoalState=null, lastRefresh=Date.now(), pending=false, activeDate=null, commandIndex=0, commandsVisible=[];
+  const save=()=>put('preferences',prefs);
+  function toast(message,error=false){const el=make('div','v5-toast'+(error?' error':''),message);$('v5-toasts').append(el);setTimeout(()=>el.remove(),3500)}
+  function storageKey(){return 'history-'+account}
+  function syncAccount(name){if(name===account)return;account=name;records.clear();heatSignature='';lastGoalState=null;if(account&&prefs.remember){const saved=get(storageKey(),{});for(const [d,h] of Object.entries(saved))if(/^\d{4}-\d{2}-\d{2}$/.test(d)&&valid(h))records.set(d,h)}}
+  function ingest(data){const r=data?.report;if(!r)return;if(!preview&&r.username)syncAccount(r.username);for(const period of r.attendance_periods||[])for(const d of period.days||[])if(typeof d.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d.date)&&d.date<=nowDay()&&valid(d.hours)&&(d.counted||d.hours>0))records.set(d.date,d.hours);if(r.date<=nowDay()&&valid(r.attendo_recorded_seconds))records.set(r.date,r.attendo_recorded_seconds/3600);const cutoff=shift(nowDay(),-365);for(const d of records.keys())if(d<cutoff||d>nowDay())records.delete(d);if(prefs.remember&&account&&!preview)put(storageKey(),Object.fromEntries(records));heatmap()}
+  function heatmap(){const end=nowDay(),start=shift(end,-364),offset=(new Date(start+'T12:00:00Z').getUTCDay()+6)%7,base=shift(start,-offset),weeks=Math.ceil((365+offset)/7),sig=JSON.stringify([...records].sort())+end;if(sig===heatSignature)return;heatSignature=sig;const grid=$('v5-heatmap');grid.replaceChildren();grid.style.setProperty('--weeks',weeks);['Mon','','Wed','','Fri','','Sun'].forEach((s,i)=>{const e=make('span','',s);e.style.gridRow=i+2;e.style.gridColumn=1;grid.append(e)});let month='';for(let w=0;w<weeks;w++){const d=shift(base,w*7),m=d.slice(0,7);if(m!==month){month=m;const e=make('span','',new Date(d+'T12:00:00Z').toLocaleString('en',{month:'short',timeZone:'UTC'}));e.style.gridRow=1;e.style.gridColumn=w+2;grid.append(e)}for(let j=0;j<7;j++){const day=shift(d,j);if(day<start||day>end)continue;const h=records.get(day),b=make('button');b.type='button';b.dataset.date=day;b.dataset.level=h===undefined?'unknown':h===0?'0':h<2?'1':h<5?'2':h<8?'3':'4';b.style.gridRow=j+2;b.style.gridColumn=w+2;b.title=`${day}: ${h===undefined?'No record':fmt(h*3600)}`;b.setAttribute('aria-label',b.title);b.setAttribute('aria-pressed',String(day===heatSelection));b.onclick=()=>{heatSelection=day;grid.querySelector('[aria-pressed=true]')?.setAttribute('aria-pressed','false');b.setAttribute('aria-pressed','true');set('v5-heat-detail',b.title)};grid.append(b)}}let longest=0,run=0;for(let i=0;i<365;i++){const h=records.get(shift(start,i));run=h>0?run+1:0;longest=Math.max(longest,run)}let streak=0,d=records.has(end)?end:shift(end,-1);while(records.get(d)>0){streak++;d=shift(d,-1)}set('v5-streak',records.size?`${streak} days`:'—');set('v5-best',records.size?`${longest} days`:'—');set('v5-known',String(records.size));set('v5-coverage',`${records.size} / 365 dates available`)}
+  function timeline(data){const list=$('v5-timeline');list.replaceChildren();const events=[];for(const p of data?.locks?.periods||[]){if(p.start!=null)events.push({at:p.start,label:'Screen locked',lock:true});if(!p.ongoing&&p.end!=null)events.push({at:p.end,label:'Screen unlocked',lock:false})}events.sort((a,b)=>new Date(a.at)-new Date(b.at));for(const event of events){const d=new Date(event.at);if(!Number.isFinite(+d))continue;const row=make('div','v5-event'),icon=make('span','v5-event-icon'+(event.lock?' lock':'')),desc=make('div'),time=make('time','',timeFmt.format(d));icon.innerHTML=event.lock?'<svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>':'<svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7-2"/></svg>';desc.append(make('strong','',event.label),make('small','','Local history'));row.append(icon,desc,time);list.append(row)}set('v5-event-count',`${list.children.length} events`);if(!list.children.length)list.append(make('p','v5-muted',data?.locks?'No observed lock events for this day.':'Lock history unavailable.'))}
+  function planner(){const r=reportData?.report, day=reportData?.date||r?.date, isToday=day===nowDay(), s=r?.logged_seconds, target=valid(prefs.goal)&&prefs.goal>0?prefs.goal*3600:r?.attendance_goal?.daily_seconds, has=valid(s)&&valid(target)&&target>0, remaining=has?Math.max(0,target-s):null, percent=has?Math.min(100,s/target*100):0;set('v5-net',fmt(s));set('v5-target',fmt(target));set('v5-remaining',fmt(remaining));const stamp=Date.parse(r?.attendo_fetched_at||'');const age=preview?Math.max(0,Math.floor((Date.now()-(lastSeen||Date.now()))/1000)):Number.isFinite(stamp)?Math.max(0,Math.floor((Date.now()-stamp)/1000)):null;set('v5-age',age===null?'—':`${Math.floor(age/60)}m ${age%60}s ago`);const fresh=preview||age!==null&&age<180;set('v5-live-label',!r?'Unavailable':!isToday?'Historical':fresh?'Auto-updated':'Data may be stale');set('v5-finish',isToday&&fresh&&has?(remaining===0?'Goal reached':timeFmt.format(new Date((preview?Date.parse('2026-11-24T15:00:00+01:00'):Date.now())+remaining*1000))):'—');set('v5-estimate-note',isToday?'Personal goal uses exact estimated hours, not Attendo rounding. Finish assumes continuous attendance from now.':'Finish time is only available for today.');$('v5-progress').firstElementChild.style.width=`${percent}%`;$('v5-progress').setAttribute('aria-valuenow',String(Math.round(percent)));$('v5-progress').classList.toggle('reached',has&&remaining===0);$('v5-goal-slider').value=prefs.goal??(valid(target)&&target>0?target/3600:8);set('v5-goal-output',`${$('v5-goal-slider').value}h`);if(isToday&&has&&lastGoalState===false&&remaining===0&&prefs.notify){toast('Daily personal goal reached!');if(!preview&&'Notification'in window&&Notification.permission==='granted')new Notification('Xattendo',{body:prefs.privacy?'Your daily goal is reached.':'Daily attendance goal reached.'})}if(isToday&&has)lastGoalState=remaining===0}
+  function accept(data){if(!data)return;reportData=data;lastSeen=Date.now();activeDate=data.date||data.report?.date;ingest(data);timeline(data);planner()}
+  function demoData(d){const snap=JSON.parse($('analytics-demo-data').textContent),today=nowDay(),prev=shift(today,-1);const h=d===today?6.7:d===prev?7.5:snap.report.attendance_periods.flatMap(p=>p.days).find(x=>x.date===d)?.hours;return {date:d,report:{...snap.report,date:d,username:'preview',logged_seconds:valid(h)?Math.round(h*3600):null,attendance_goal:{...snap.report.attendance_goal,daily_seconds:28800}},locks:d===today?{periods:[{start:d+'T10:14:00+01:00',end:d+'T10:22:00+01:00'},{start:d+'T12:20:00+01:00',end:d+'T12:46:00+01:00'},{start:d+'T15:08:00+01:00',end:d+'T15:22:00+01:00'}]}:null,errors:[]}}
+  function reflect(){const ready=!main.hidden&&!$('day-report').hidden;$('v5-overview-extra').hidden=!ready;if(main.hidden){reportData=null;analyticsData=null;syncAccount(null);$('v5-palette').open&&$('v5-palette').close();return}if(preview){if(ready){const d=$('v5-date').value||nowDay();accept(demoData(d))}}else if(ready&&typeof dayReports!=='undefined'&&typeof selectedDay!=='undefined'){const data=dayReports.get(selectedDay)?.data;if(data&&data!==reportData){$('v5-date').value=data.date||selectedDay;accept(data)}}if(main.dataset.view==='settings'){$('settings-page').hidden=false}else $('settings-page').hidden=true}
+  function applyPrefs(){root.classList.toggle('v5-private',prefs.privacy);root.classList.toggle('v5-collapsed',prefs.collapsed);$('v5-collapse').setAttribute('aria-expanded',String(!prefs.collapsed));if(document.activeElement!==$('v5-goal')){$('v5-goal').value=prefs.goal??'';validateGoal();}$('v5-refresh-rate').value=String(prefs.rate);$('v5-notify').checked=prefs.notify;$('v5-private').checked=prefs.privacy;$('v5-remember').checked=prefs.remember;save();planner()}
+  function navigate(view){location.hash='#/'+view}
+  function changeGoal(value){prefs.goal=value;lastGoalState=null;applyPrefs()}
+  function selectDate(d){if(!d||d>nowDay()){toast('Choose today or a previous date.',true);return}$('v5-date').value=d;navigate('overview');if(preview){if(d===nowDay()||d===shift(nowDay(),-1))window.load(d!==nowDay());else{const data=demoData(d);$('day-report').hidden=false;set('logged',fmt(data.report.logged_seconds));set('recorded',fmt(data.report.logged_seconds));set('intra-total','—');$('goal-panel').hidden=true;for(const b of [$('today'),$('yesterday')])b.setAttribute('aria-pressed','false');accept(data)}}else if(typeof selectedDay!=='undefined'){selectedDay=d;load()}else toast('The original app.js is required.',true)}
+  async function refresh(manual=false){if(main.hidden||pending)return;if(main.dataset.view==='analytics'){if(!$('analytics-refresh').disabled)$('analytics-refresh').click();return}if(main.dataset.view==='settings')return;if($('refresh').disabled)return;pending=true;lastRefresh=Date.now();try{if(preview){$('refresh').click();await new Promise(r=>setTimeout(r,1150));reflect()}else if(typeof load==='function'){await load(manual);reflect()}if(manual){const error=$('status').classList.contains('error');toast(error?'Refresh failed. See dashboard status.':'Attendance refreshed',error)}}finally{pending=false}}
+  function full(){if(document.fullscreenElement)document.exitFullscreen?.();else if(root.requestFullscreen)root.requestFullscreen().catch(()=>toast('Full screen is unavailable.',true));else toast('Full screen is unavailable.',true)}
+  const commands=[['Calendar',()=>navigate('calendar')],['Reports',()=>navigate('reports')],['Insights',()=>navigate('insights')],['Notifications',()=>navigate('notifications')],['Customize',()=>navigate('customize')],['System status',()=>navigate('system')],['Focus mode',()=>navigate('focus')],['Overview',()=>navigate('overview')],['Analytics',()=>navigate('analytics')],['Lock history',()=>navigate('history')],['Attendance',()=>navigate('attendance')],['Settings',()=>navigate('settings')],['Refresh attendance',()=>refresh(true)],['Toggle theme',()=>{const e=$('theme');e.value=root.dataset.theme==='dark'?'light':'dark';e.dispatchEvent(new Event('change',{bubbles:true}))}],['Export attendance CSV',()=>{navigate('analytics');toast('Choose a period, then Export CSV.')}],['Toggle privacy mode',()=>{prefs.privacy=!prefs.privacy;applyPrefs()}],['Toggle full screen',full]];
+  function drawCommands(){const q=$('v5-search').value.toLowerCase().trim(),list=$('v5-commands');commandsVisible=commands.filter(c=>c[0].toLowerCase().includes(q));commandIndex=Math.max(0,Math.min(commandIndex,commandsVisible.length-1));list.replaceChildren();commandsVisible.forEach(([label,action],i)=>{const b=make('button','v5-command');b.type='button';b.setAttribute('aria-selected',String(i===commandIndex));b.append(make('span','',label),make('span','v5-muted','↵'));b.onclick=()=>{$('v5-palette').close();action()};list.append(b)});if(!commandsVisible.length)list.append(make('p','v5-muted','No matching actions'))}
+  function openPalette(){if(main.hidden)return;$('v5-search').value='';commandIndex=0;drawCommands();if(!$('v5-palette').open)$('v5-palette').showModal();$('v5-search').focus()}
+  $('v5-search').oninput=()=>{commandIndex=0;drawCommands()};$('v5-palette').addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();commandIndex+=e.key==='ArrowDown'?1:-1;drawCommands();$('v5-commands').children[commandIndex]?.scrollIntoView({block:'nearest'})}if(e.key==='Enter'&&commandsVisible[commandIndex]){e.preventDefault();$('v5-palette').close();commandsVisible[commandIndex][1]()}});$('v5-palette-close').onclick=()=>$('v5-palette').close();$('v5-command-trigger').onclick=openPalette;document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&!main.hidden){e.preventDefault();openPalette()}});
+
+  const palette = $('v5-palette');
+  let paletteOutside = false;
+  function outsidePalette(event) {
+    const rect = palette.getBoundingClientRect();
+    return event.target === palette && (event.clientX < rect.left || event.clientX >= rect.right || event.clientY < rect.top || event.clientY >= rect.bottom);
+  }
+  palette.addEventListener('pointerdown', event => { paletteOutside = event.button === 0 && outsidePalette(event); });
+  palette.addEventListener('pointercancel', () => { paletteOutside = false; });
+  palette.addEventListener('click', event => {
+    if (paletteOutside && outsidePalette(event) && palette.open) palette.close();
+    paletteOutside = false;
+  });
+  palette.addEventListener('close', () => { paletteOutside = false; });
+  const goalInput = $('v5-goal'), goalHelp = $('v5-goal-help');
+  const goalMessage = 'Leave empty to use the automatic attendance goal.';
+  function validateGoal() {
+    const valid = goalInput.validity.valid;
+    goalInput.setAttribute('aria-invalid', String(!valid));
+    goalHelp.dataset.error = String(!valid);
+    goalHelp.textContent = valid ? goalMessage : 'Enter a goal from 1 to 24 hours, in half-hour steps.';
+    return valid;
+  }
+  goalInput.addEventListener('input', validateGoal);
+  goalInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter') { event.preventDefault(); if (validateGoal()) goalInput.blur(); }
+    if (event.key === 'Escape') { goalInput.value = prefs.goal ?? ''; validateGoal(); goalInput.blur(); }
+  });
+
+  $('v5-collapse').onclick=()=>{prefs.collapsed=!prefs.collapsed;applyPrefs()};$('v5-goal-slider').oninput=e=>changeGoal(Number(e.target.value));$('v5-auto-goal').onclick=()=>changeGoal(null);$('v5-goal').onchange=e=>{if(!validateGoal())return;changeGoal(e.target.value===''?null:Number(e.target.value));validateGoal();toast('Personal goal saved')};$('v5-refresh-rate').onchange=e=>{prefs.rate=Number(e.target.value);applyPrefs();toast('Refresh preference saved')};$('v5-notify').onchange=async e=>{prefs.notify=e.target.checked;applyPrefs();if(prefs.notify&&!preview&&'Notification'in window&&Notification.permission==='default')try{await Notification.requestPermission()}catch{}toast(prefs.notify?'Goal alerts enabled while this dashboard is open.':'Goal alerts disabled')};$('v5-private').onchange=e=>{prefs.privacy=e.target.checked;applyPrefs()};$('v5-show').onclick=()=>{prefs.privacy=false;applyPrefs()};$('v5-remember').onchange=e=>{prefs.remember=e.target.checked;applyPrefs();if(account&&!preview){if(prefs.remember)put(storageKey(),Object.fromEntries(records));else put(storageKey(),{})}toast('History preference saved')};$('v5-clear').onclick=()=>{if(account)put(storageKey(),{});records.clear();heatSignature='';heatmap();toast('Local saved history cleared')};$('v5-fullscreen').onclick=full;$('v5-date').max=nowDay();$('v5-date').value=nowDay();$('v5-date').onchange=e=>selectDate(e.target.value);for(const [id,delta]of [['today',0],['yesterday',-1]])$(id).addEventListener('click',()=>{$('v5-date').value=shift(nowDay(),delta)} ,true);
+  $('open-settings').addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();navigate('settings')},true);
+  document.addEventListener('DOMContentLoaded',()=>{const form=$('settings').querySelector('form');$('settings-native').append(form);form.addEventListener('submit',e=>e.preventDefault());if(preview){$('launch-at-login').disabled=true}else if(typeof defaultDaySetting!=='undefined'&&defaultDaySetting.value==='yesterday')$('v5-date').value=shift(nowDay(),-1);reflect()});
+  new MutationObserver(()=>{reflect();if(main.dataset.view==='settings'&&!main.hidden&&!preview&&typeof syncStartupSetting==='function')syncStartupSetting()}).observe(main,{attributes:true,attributeFilter:['data-view','hidden']});new MutationObserver(reflect).observe($('day-report'),{attributes:true,attributeFilter:['hidden']});new MutationObserver(()=>{if(!$('refresh').disabled)reflect()}).observe($('refresh'),{attributes:true,attributeFilter:['disabled']});
+  window.addEventListener('xattendo:analytics-data',e=>{analyticsData=e.detail;ingest(analyticsData)});let manualRefresh=false; $('refresh').addEventListener('click',()=>{lastRefresh=Date.now();if(!pending)manualRefresh=true});new MutationObserver(()=>{if(manualRefresh&&!$('refresh').disabled){manualRefresh=false;const bad=$('status').classList.contains('error');toast(bad?'Refresh failed. See dashboard status.':'Attendance refreshed',bad)}}).observe($('refresh'),{attributes:true,attributeFilter:['disabled']});
+  setInterval(()=>{if(main.hidden)return;$('v5-date').max=nowDay();planner();if(!document.hidden&&prefs.rate>0&&Date.now()-lastRefresh>=prefs.rate*1000){lastRefresh=Date.now();if($('v5-date').value===nowDay()||main.dataset.view==='analytics')refresh()}},1000);
+  window.xattendoV6 = {read:()=>({reportData,analyticsData,account,records:[...records],prefs:{...prefs},preview,today:nowDay()}),notify:toast,selectDate,refresh,applyPreferences:values=>{for(const k of ["goal","rate","notify","privacy","remember","collapsed"])if(k in values)prefs[k]=values[k];applyPrefs();},clearHistory:()=>$("v5-clear").click()};
+  applyPrefs();heatmap();reflect();
+})();
+</script><script>(() => {
+'use strict';
+const $=id=>document.getElementById(id), main=$('overview'), root=document.documentElement, api=window.xattendoV6;
+if(!api)return;
+const read=()=>api.read(), preview=read().preview, finite=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0, fmt=h=>finite(h)?`${Math.floor(Math.round(h*60)/60)}h ${String(Math.round(h*60)%60).padStart(2,'0')}m`:'—', dateOK=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&!isNaN(Date.parse(d)), iso=d=>d.toISOString().slice(0,10), date=d=>new Date(d+'T12:00:00Z'), shift=(d,n)=>iso(new Date(+date(d)+n*86400000)), el=(tag,cls,text)=>{let e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}, set=(id,text)=>$(id).textContent=text;
+const get=(key,def)=>{try{return JSON.parse(localStorage.getItem('xattendo-v6-'+key))??def}catch{return def}}, put=(key,value)=>{try{localStorage.setItem('xattendo-v6-'+key,JSON.stringify(value));return true}catch{return false}};
+const defaults=[{id:'planner',label:'Daily goal planner',on:true,wide:false},{id:'timeline',label:'Activity timeline',on:true,wide:false},{id:'forecast',label:'Attendance forecast',on:true,wide:false},{id:'activity',label:'Weekly activity',on:true,wide:false},{id:'locks',label:'Screen-lock visualization',on:true,wide:true},{id:'heat',label:'Attendance heatmap',on:false,wide:true}];
+function cleanLayout(v){const out=[];if(Array.isArray(v))for(const row of v){const d=defaults.find(x=>x.id===row?.id);if(d&&!out.some(x=>x.id===d.id))out.push({...d,on:typeof row.on==='boolean'?row.on:d.on,wide:typeof row.wide==='boolean'?row.wide:d.wide})}return [...out,...defaults.filter(d=>!out.some(x=>x.id===d.id)).map(x=>({...x}))]}
+const cleanPrefs=p=>({layout:cleanLayout(p?.layout),accent:['purple','blue','teal','rose'].includes(p?.accent)?p.accent:'purple',motion:p?.motion===true,compact:p?.compact===true,offline:p?.offline===true,chart:['bar','line','area'].includes(p?.chart)?p.chart:'bar'});
+let prefs=cleanPrefs(get('preferences',{})), month=read().today.slice(0,7), chosen=null, notifications=[], lastAccount=null,lastSync=null,lastGoal=null,lastPeriod=null,lastSignature='', installPrompt=null, checks=[], checkBusy=false, dragId=null, lastData=null;
+const save=()=>put('preferences',prefs), nav=page=>location.hash='#/'+page;
+const rows=()=>read().records.filter(([d,h])=>dateOK(d)&&finite(h)).sort((a,b)=>a[0].localeCompare(b[0]));
+const data=()=>read().analyticsData||read().reportData;
+function metric(label,value){const n=el('div','v6-metric');n.append(el('span','v5-muted',label),el('strong','',value));return n}
+function metrics(id,items){$(id).replaceChildren(...items.map(([l,v])=>metric(l,v)))}
+function blank(parent,message){parent.replaceChildren(el('p','v5-muted v6-empty',message))}
+function download(name,body,type){const url=URL.createObjectURL(new Blob([body],{type})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function announce(title,detail){notifications.unshift({title,detail,at:Date.now(),read:false});notifications=notifications.slice(0,50);renderNotifications()}
+function renderNotifications(){const n=$('v6-notifications');n.replaceChildren();let count=notifications.filter(x=>!x.read).length;set('v6-unread',count>9?'9+':String(count));$('v6-unread').hidden=!count;for(const item of notifications){const r=el('div','v6-insight'+(item.read?'':' unread')),body=el('div');body.append(el('strong','',item.title),el('p','v5-muted',item.detail),el('small','v5-muted',new Date(item.at).toLocaleTimeString()));const b=el('button','button',item.read?'Read':'Mark read');b.disabled=item.read;b.onclick=()=>{item.read=true;renderNotifications()};r.append(body,b);n.append(r)}if(!n.children.length)blank(n,'No notifications in this session.')}
+function forecast(){const r=data()?.report,p=r?.attendance_periods?.find(p=>p.label==='Current period'),days=(p?.days||[]).filter(d=>d.counted===true&&finite(d.hours)).sort((a,b)=>a.date.localeCompare(b.date)),target=finite(r?.attendance_goal?.target_seconds)&&r.attendance_goal.target_seconds>0?r.attendance_goal.target_seconds/3600:null,total=finite(p?.total)?p.total:null,n=days.length,avg=n?days.reduce((s,x)=>s+x.hours,0)/n:null,remaining=Math.max(0,7-n),projection=total!==null&&avg!==null?total+remaining*avg:null;return {r,p,days,target,total,n,avg,remaining,projection}}
+const svg=(tag,attrs={},text)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;return e};
+function chart(parent,values,{type='bar',target=null,forecastFrom=null,labels=[]}={}){parent.replaceChildren();if(!values.some(finite)){blank(parent,'No recorded data available.');return}const W=760,H=250,L=48,R=20,T=18,B=36,max=Math.max(1,Math.ceil(Math.max(...values.filter(finite),target??0)/4)*4),width=W-L-R,height=H-T-B,dx=width/Math.max(1,values.length),x=i=>L+(i+.5)*dx,y=v=>T+height*(1-v/max),s=svg('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':values.map((v,i)=>`${labels[i]||i+1}: ${fmt(v)}`).join(', ')});for(let i=0;i<=4;i++){const v=max*i/4;s.append(svg('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),class:'v6-gridline'}),svg('text',{x:L-9,y:y(v)+4,'text-anchor':'end',class:'v6-axis'},`${v}h`))}if(finite(target))s.append(svg('line',{x1:L,x2:W-R,y1:y(target),y2:y(target),class:'v6-target'}));for(let i=0;i<values.length;i++){const v=values[i];if(values.length<=12||i%5===0)s.append(svg('text',{x:x(i),y:H-10,'text-anchor':'middle',class:'v6-axis'},labels[i]||String(i+1)));if(!finite(v))continue;if(type==='bar'){const rect=svg('rect',{x:x(i)-Math.min(20,dx*.32),y:y(v),width:Math.min(40,dx*.64),height:Math.max(0,height*v/max),rx:4,class:'v6-bar'});rect.append(svg('title',{},`${labels[i]||i+1}: ${fmt(v)}`));s.append(rect)}else {if(i>0&&finite(values[i-1])){if(type==='area')s.append(svg('path',{d:`M${x(i-1)},${y(0)} L${x(i-1)},${y(values[i-1])} L${x(i)},${y(v)} L${x(i)},${y(0)}Z`,class:'v6-area'}));s.append(svg('line',{x1:x(i-1),y1:y(values[i-1]),x2:x(i),y2:y(v),class:'v6-line'+(forecastFrom!==null&&i>=forecastFrom?' projected':'')}))}const dot=svg('circle',{cx:x(i),cy:y(v),r:4,class:'v6-dot'+(forecastFrom!==null&&i>=forecastFrom?' projected':'')});dot.append(svg('title',{},`${labels[i]||i+1}: ${fmt(v)}`));s.append(dot)}}parent.append(s)}
+function drawForecast(parent){const f=forecast();if(f.projection===null){blank(parent,'Not enough counted days to estimate a forecast.');return}let sum=0;const vals=f.days.map(x=>sum+=x.hours);if(vals.length)vals[vals.length-1]=f.total;for(let i=0;i<f.remaining;i++)vals.push(f.total+(i+1)*f.avg);chart(parent,vals,{type:'line',target:f.target,forecastFrom:f.n,labels:vals.map((_,i)=>`Day ${i+1}`)})}
+function renderInsights(){const f=forecast();metrics('v6-forecast-metrics',[['Recorded',fmt(f.total)],['Projected',fmt(f.projection)],['Target',fmt(f.target)]]);drawForecast($('v6-forecast-chart'));set('v6-forecast-note',f.projection===null?'A forecast requires at least one counted day and a reported period total.':`${f.n} counted days · ${fmt(f.avg)} average · ${f.remaining} remaining counted days. Projection assumes the same pace, not an official prediction.`);const items=[];if(f.target!==null&&f.projection!==null)items.push(['Target outlook',f.projection>=f.target?`Projected to meet the target by ${fmt(f.projection-f.target)}.`:`Projected shortfall: ${fmt(f.target-f.projection)}.`]);const prev=f.r?.attendance_periods?.find(p=>p.label==='Previous period'),prevDays=(prev?.days||[]).filter(d=>d.counted&&finite(d.hours));if(f.avg!==null&&prevDays.length){const avg=prevDays.reduce((s,d)=>s+d.hours,0)/prevDays.length;if(avg>0)items.push(['Daily average comparison',`${Math.abs((f.avg/avg-1)*100).toFixed(1)}% ${f.avg>=avg?'higher':'lower'} than the previous period’s counted-day average.`])}const best=rows().sort((a,b)=>b[1]-a[1])[0];if(best)items.push(['Best recorded day',`${best[0]} · ${fmt(best[1])}`]);const r=read().reportData?.report;const locked=lockInfo();if(locked&&finite(r?.logged_seconds)&&r.logged_seconds+locked.seconds>0)items.push(['Observed screen locks',`${(locked.seconds/(r.logged_seconds+locked.seconds)*100).toFixed(1)}% of estimated net plus observed lock time for the selected day. Not a productivity measure.`]);const parent=$('v6-insights');parent.replaceChildren(...items.map(([a,b])=>insight(a,b)));if(!items.length)blank(parent,'Insights appear when attendance records are available.')}
+function insight(title,desc){const n=el('div','v6-insight'),b=el('div');b.append(el('strong','',title),el('p','v5-muted',desc));n.append(b);return n}
+function renderCalendar(){const first=date(month+'-01'),offset=(first.getUTCDay()+6)%7,last=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate(),map=new Map(rows()),grid=$('v6-calendar');set('v6-month-title',first.toLocaleDateString('en',{month:'long',year:'numeric',timeZone:'UTC'}));grid.replaceChildren(...['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>el('div','v6-weekday',d)));for(let i=0;i<offset;i++)grid.append(el('div','v6-calendar-blank'));for(let i=1;i<=last;i++){const d=`${month}-${String(i).padStart(2,'0')}`,h=map.get(d),b=el('button','v6-day'+(d===chosen?' selected':'')+(d===read().today?' today':''));b.type='button';b.disabled=d>read().today;b.append(el('strong','',String(i)),el('small','',finite(h)?fmt(h):'—'));b.title=`${d}: ${finite(h)?fmt(h):'No record'}`;b.setAttribute('aria-label',b.title);b.onclick=()=>{chosen=d;renderCalendar()};grid.append(b)}set('v6-calendar-detail',chosen?`${chosen} · ${map.has(chosen)?fmt(map.get(chosen)):'No recorded attendance available'}`:'Select a date to see its recorded time.');$('v6-calendar-open').disabled=!chosen||chosen>read().today;$('v6-month-next').disabled=month>=read().today.slice(0,7)}
+function stepMonth(n){const d=date(month+'-01');d.setUTCMonth(d.getUTCMonth()+n);month=iso(d).slice(0,7);chosen=null;renderCalendar()}
+function monthRows(m){return rows().filter(([d])=>d.startsWith(m))}
+function renderReports(){const m=$('v6-report-month').value||read().today.slice(0,7),rr=monthRows(m),total=rr.reduce((s,[,h])=>s+h,0),prev=date(m+'-01');prev.setUTCMonth(prev.getUTCMonth()-1);const prior=monthRows(iso(prev).slice(0,7)),prevTotal=prior.reduce((s,[,h])=>s+h,0);metrics('v6-month-metrics',[['Recorded total',rr.length?fmt(total):'—'],['Known dates',String(rr.length)],['Average / known date',rr.length?fmt(total/rr.length):'—'],['Previous month (known)',prior.length?fmt(prevTotal):'—']]);const tbody=$('v6-report-rows');tbody.replaceChildren();for(const [d,h] of rr){const tr=el('tr');tr.append(el('td','',d),el('td','',fmt(h)));tbody.append(tr)}if(!rr.length){const tr=el('tr'),td=el('td','empty','No known dates for this month.');td.colSpan=2;tr.append(td);tbody.append(tr)}$('v6-report-export').disabled=!rr.length}
+function lockInfo(){const d=read().reportData;if(!d?.locks||!Array.isArray(d.locks.periods))return null;const ranges=[];for(const p of d.locks.periods){const a=Date.parse(p.start),b=Date.parse(p.end);if(Number.isFinite(a)&&Number.isFinite(b)&&b>=a)ranges.push([a,b])}ranges.sort((a,b)=>a[0]-b[0]);const merged=[];for(const r of ranges){const last=merged.at(-1);if(last&&r[0]<=last[1])last[1]=Math.max(last[1],r[1]);else merged.push([...r])}return {ranges:merged,seconds:merged.reduce((s,[a,b])=>s+(b-a)/1000,0),day:d.date||d.report?.date}}
+function renderLocks(parent){const info=lockInfo();if(!info||!dateOK(info.day)){blank(parent,'No observed lock history available.');return}const t=el('div','v6-session-track');const dayFmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});const minutes=v=>{const x=dayFmt.format(new Date(v)).split(':').map(Number);return x[0]*60+x[1]};for(const [a,b] of info.ranges){const start=minutes(a),end=Math.min(1440,start+(b-a)/60000);if(end<=start)continue;const span=el('span','v6-locked');span.style.left=`${start/14.4}%`;span.style.width=`${(end-start)/14.4}%`;span.title=`${dayFmt.format(new Date(a))}–${dayFmt.format(new Date(b))}`;t.append(span)}const axis=el('div','v6-session-axis');for(const label of ['00:00','06:00','12:00','18:00','24:00'])axis.append(el('span','',label));parent.replaceChildren(t,axis,el('p','v5-muted',`${fmt(info.seconds/3600)} observed locked time · unmarked intervals are unknown, not confirmed active sessions.`))}
+function renderTrend(){const rr=rows().slice(-30);chart($('v6-trend'),rr.map(x=>x[1]),{type:prefs.chart,labels:rr.map(x=>x[0].slice(5))})}
+function widgetCard(id,title){const n=el('article','card v6-card'),h=el('div','analytics-card-heading'),body=el('div','v6-widget-body');h.append(el('h2','',title));n.append(h,body);n.dataset.widget=id;return [n,body]}
+const oldPlanner=document.querySelector('.v5-planner'),oldTimeline=document.querySelector('.v5-overview-grid > article:not(.v5-planner)'),widgetGrid=$('v6-widgets');
+function applyLayout(){const oldGrid=document.querySelector('.v5-overview-grid');oldGrid.hidden=true;widgetGrid.replaceChildren();for(const item of prefs.layout){if(!item.on){if(item.id==='planner')oldGrid.append(oldPlanner);if(item.id==='timeline')oldGrid.append(oldTimeline);continue}let card,body;if(item.id==='planner')card=oldPlanner;else if(item.id==='timeline')card=oldTimeline;else{[card,body]=widgetCard(item.id,item.label);if(item.id==='forecast')drawForecast(body);if(item.id==='activity'){const rr=rows().slice(-7);chart(body,rr.map(x=>x[1]),{labels:rr.map(x=>x[0].slice(5))})}if(item.id==='locks')renderLocks(body);if(item.id==='heat'){const map=new Map(rows()),grid=el('div','v6-miniheat');for(let i=0;i<84;i++){const d=shift(read().today,i-83),h=map.get(d),box=el('span','v6-heat-cell');box.dataset.level=h===undefined?'unknown':h===0?'0':h<2?'1':h<5?'2':h<8?'3':'4';box.title=`${d}: ${fmt(h)}`;grid.append(box)}body.append(grid,el('p','v5-muted','Last 12 weeks · available recorded dates'))}}card.classList.toggle('v6-wide',item.wide);widgetGrid.append(card)}}
+function renderWidgetOptions(){const parent=$('v6-widget-options');parent.replaceChildren();for(const [i,w] of prefs.layout.entries()){const row=el('div','v6-widget-option'),label=el('label','v6-option-label'),c=el('input');c.type='checkbox';c.checked=w.on;c.onchange=()=>{w.on=c.checked;save();applyLayout()};label.append(c,el('span','',w.label));const size=el('select');for(const [value,text] of [['half','Half width'],['wide','Full width']]){const o=el('option','',text);o.value=value;size.append(o)}size.value=w.wide?'wide':'half';size.setAttribute('aria-label',w.label+' width');size.onchange=()=>{w.wide=size.value==='wide';save();applyLayout()};const up=el('button','button','↑'),down=el('button','button','↓');up.setAttribute('aria-label','Move '+w.label+' up');down.setAttribute('aria-label','Move '+w.label+' down');up.disabled=i===0;down.disabled=i===prefs.layout.length-1;up.onclick=()=>move(i,i-1);down.onclick=()=>move(i,i+1);row.draggable=true;row.addEventListener('dragstart',e=>{dragId=w.id;e.dataTransfer.setData('text/plain',w.id)});row.addEventListener('dragover',e=>e.preventDefault());row.addEventListener('drop',e=>{e.preventDefault();const from=prefs.layout.findIndex(x=>x.id===dragId);if(from>=0)move(from,i)});row.append(el('span','v6-drag','⋮⋮'),label,size,up,down);parent.append(row)}}
+function move(a,b){if(a<0||b<0||b>=prefs.layout.length)return;const [w]=prefs.layout.splice(a,1);prefs.layout.splice(b,0,w);save();renderWidgetOptions();applyLayout()}
+function applyAppearance(){root.dataset.accent=prefs.accent;root.classList.toggle('v6-reduce',prefs.motion);root.classList.toggle('v6-compact',prefs.compact);$('v6-accent').value=prefs.accent;$('v6-motion').checked=prefs.motion;$('v6-compact').checked=prefs.compact;$('v6-chart-type').value=prefs.chart;$('v6-offline-opt').checked=prefs.offline;save()}
+function renderFocus(){set('v6-focus-time',$('v5-net').textContent);set('v6-focus-age',`${$('v5-live-label').textContent} · ${$('v5-age').textContent}`);$('v6-focus-progress').firstElementChild.style.width=$('v5-progress').firstElementChild.style.width;metrics('v6-focus-metrics',[['Remaining',$('v5-remaining').textContent],['Observed locked',lockInfo()?fmt(lockInfo().seconds/3600):'—'],['Est. finish',$('v5-finish').textContent]])}
+function renderStatus(){const parent=$('v6-connections');parent.replaceChildren(...(checks.length?checks:[['Local server','Not checked'],['Attendo','Not checked'],['42 Intra','Not checked']]).map(x=>insight(...x)));const d=read().reportData;const diagnostics=[['Browser network',navigator.onLine?'Online (browser signal)':'Offline'],['Last observed report',lastSync?new Date(lastSync).toLocaleString():'—'],['Available daily records',String(rows().length)],['Latest dashboard errors',(d?.errors||[]).length?d.errors.map(String).join(' · ').slice(0,400):'No reported errors'],['App shell',preview?'Standalone preview':navigator.serviceWorker?.controller?'Service worker active':'Network / browser cache']];$('v6-diagnostics').replaceChildren(...diagnostics.map(x=>insight(...x)))}
+async function check(){if(checkBusy)return;checkBusy=true;$('v6-check').disabled=true;checks=[['Local server','Checking…'],['Attendo','Checking…'],['42 Intra','Checking…']];renderStatus();try{if(preview){await new Promise(r=>setTimeout(r,400));checks=[['Local server','Preview · simulated'],['Attendo','Preview · simulated'],['42 Intra','Preview · simulated']]}else{const start=performance.now();const health=await fetch('/api/health',{cache:'no-store',signal:AbortSignal.timeout(8000)});if(!health.ok)throw Error('HTTP '+health.status);checks[0]=['Local server',`Reachable · ${Math.round(performance.now()-start)} ms`];renderStatus();try{const r=await fetch('/api/session',{cache:'no-store',signal:AbortSignal.timeout(35000)}),j=await r.json();for(const [i,k,label] of [[1,'attendo','Attendo'],[2,'intra','42 Intra']])checks[i]=[label,j[k]===true?'Session available':j[k]===false?'Sign-in required':'Status unavailable'];}catch{checks[1]=['Attendo','Session check failed'];checks[2]=['42 Intra','Session check failed']}}}catch(e){checks=[['Local server','Unreachable'],['Attendo','Not checked'],['42 Intra','Not checked']]}finally{checkBusy=false;$('v6-check').disabled=false;renderStatus()}}
+function snapshot(){if(!prefs.offline||preview||!read().account||!rows().length)return;put('offline',{savedAt:Date.now(),owner:read().account,rows:rows()})}
+function offlineLink(){$('v6-offline-open').hidden=!(prefs.offline&&get('offline',null)?.rows?.length)}
+function deleteSnapshot(){put('offline',null);prefs.offline=false;applyAppearance();offlineLink();$('v6-offline').hidden=true;if(main.hidden)$('session-screen').hidden=false;api.notify('Offline snapshot deleted')}
+function openOffline(){const s=get('offline',null);if(!prefs.offline||!s)return;const body=$('v6-offline-rows');body.replaceChildren();set('v6-offline-meta',`Saved ${new Date(s.savedAt).toLocaleString()} · ${s.rows.length} known dates`);for(const [d,h]of s.rows.filter(x=>dateOK(x[0])&&finite(x[1])).reverse()){const tr=el('tr');tr.append(el('td','',d),el('td','',fmt(h)));body.append(tr)}$('session-screen').hidden=true;$('v6-offline').hidden=false}
+function route(){const v=main.dataset.view,newPage=!!document.querySelector(`[data-v6-page="${v}"]`);$('v6-pages').hidden=!newPage;for(const e of document.querySelectorAll('[data-v6-page]'))e.hidden=e.dataset.v6Page!==v;if(v==='calendar')renderCalendar();if(v==='reports')renderReports();if(v==='insights')renderInsights();if(v==='notifications')renderNotifications();if(v==='customize')renderWidgetOptions();if(v==='system')renderStatus();if(v==='focus')renderFocus();else if(document.fullscreenElement===document.querySelector('.v6-focus'))document.exitFullscreen?.();if(!main.hidden)$('v6-offline').hidden=true;offlineLink()}
+function refreshDerived(){const s=read();if(main.hidden){lastSignature='';lastAccount=null;lastGoal=null;lastPeriod=null;notifications=[];renderNotifications();offlineLink();return}if(lastAccount!==s.account){const cached=get('offline',null);if(s.account&&cached&&cached.owner!==s.account)put('offline',null);lastAccount=s.account;lastSignature='';lastGoal=null;lastPeriod=null;notifications=[];renderNotifications()}const report=s.reportData,signature=JSON.stringify([s.account,s.records,report,s.analyticsData]);if(signature!==lastSignature){lastSignature=signature;if(report?.report){lastSync=Date.now();if(lastData!==report){lastData=report;announce('Attendance synchronized','Dashboard received a report.');}const goal=finite(s.prefs.goal)&&s.prefs.goal>0?s.prefs.goal*3600:report.report.attendance_goal?.daily_seconds,logged=report.report.logged_seconds;if((report.date||report.report.date)===s.today&&finite(goal)&&goal>0&&finite(logged)){const done=logged>=goal;if(done&&lastGoal===false)announce('Daily goal reached','Your personal attendance target is complete.');lastGoal=done}}const f=forecast();if(f.target!==null&&f.total!==null){const done=f.total>=f.target;if(done&&lastPeriod===false)announce('Period goal reached','The configured attendance target is complete.');lastPeriod=done}snapshot();applyLayout();renderTrend();route()}if(main.dataset.view==='focus')renderFocus()}
+$('v6-month-prev').onclick=()=>stepMonth(-1);$('v6-month-next').onclick=()=>stepMonth(1);$('v6-month-today').onclick=()=>{month=read().today.slice(0,7);chosen=read().today;renderCalendar()};$('v6-calendar-open').onclick=()=>chosen&&api.selectDate(chosen);$('v6-report-month').value=read().today.slice(0,7);$('v6-report-month').max=read().today.slice(0,7);$('v6-report-month').onchange=renderReports;$('v6-report-export').onclick=()=>{const m=$('v6-report-month').value;download(`attendance-${m}.csv`,'date,recorded_hours\n'+monthRows(m).map(([d,h])=>`${d},${h}`).join('\n'),'text/csv')};$('v6-chart-type').onchange=e=>{prefs.chart=e.target.value;save();renderTrend()};$('v6-bell').onclick=()=>nav('notifications');$('v6-mark').onclick=()=>{notifications.forEach(x=>x.read=true);renderNotifications()};$('v6-clear-notifications').onclick=()=>{notifications=[];renderNotifications()};$('v6-reset-layout').onclick=()=>{prefs.layout=cleanLayout([]);save();renderWidgetOptions();applyLayout()};for(const [id,k]of [['v6-accent','accent'],['v6-motion','motion'],['v6-compact','compact']])$(id).onchange=e=>{prefs[k]=e.target.type==='checkbox'?e.target.checked:e.target.value;applyAppearance()};$('v6-backup').onclick=()=>{const p=read().prefs;download('xattendo-preferences.json',JSON.stringify({version:6,appearance:{...prefs,offline:false},dashboard:{goal:p.goal,rate:p.rate,notify:p.notify,privacy:p.privacy,collapsed:p.collapsed},theme:$('theme').value},null,2),'application/json')};$('v6-import').onchange=async e=>{try{const file=e.target.files[0];if(!file||file.size>100000)throw Error();const b=JSON.parse(await file.text());if(b.version!==6)throw Error();const prev=prefs.offline;prefs=cleanPrefs(b.appearance);prefs.offline=prev;const p=b.dashboard||{},safe={};if(p.goal===null||finite(p.goal)&&p.goal>=1&&p.goal<=24)safe.goal=p.goal;if([0,60,120,300].includes(p.rate))safe.rate=p.rate;for(const k of ['notify','privacy','collapsed'])if(typeof p[k]==='boolean')safe[k]=p[k];api.applyPreferences(safe);if(['dark','light','system'].includes(b.theme)){$('theme').value=b.theme;$('theme').dispatchEvent(new Event('change',{bubbles:true}))}applyAppearance();applyLayout();renderWidgetOptions();api.notify('Preferences imported')}catch{api.notify('Invalid preference backup',true)}finally{e.target.value=''}};$('v6-check').onclick=check;$('v6-focus-exit').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();nav('overview')};$('v6-focus-full').onclick=()=>{const card=document.querySelector('.v6-focus');if(document.fullscreenElement)document.exitFullscreen?.();else if(card.requestFullscreen)card.requestFullscreen().catch(()=>api.notify('Full screen unavailable',true));else api.notify('Full screen unavailable',true)};$('v6-offline-opt').onchange=e=>{prefs.offline=e.target.checked;if(prefs.offline)snapshot();else put('offline',null);applyAppearance();offlineLink()};$('v6-delete-cache').onclick=deleteSnapshot;$('v6-offline-clear').onclick=deleteSnapshot;$('v6-offline-open').onclick=openOffline;$('v6-offline-close').onclick=()=>{$('v6-offline').hidden=true;$('session-screen').hidden=false};$('v5-clear').addEventListener('click',()=>{put('offline',null);offlineLink()});$('v6-update').onclick=async()=>{if(preview){set('v6-update-status','Preview only. Open releases to check upstream.');return}set('v6-update-status','Checking public GitHub releases…');try{const r=await fetch('https://api.github.com/repos/mohamednasih/attendo/releases/latest',{signal:AbortSignal.timeout(12000),credentials:'omit'});if(r.status===404){set('v6-update-status','No published upstream release found. Check the repository commit history.');return}if(!r.ok)throw Error();const j=await r.json();set('v6-update-status',`Latest upstream release: ${j.tag_name||'Unknown'} · custom V6 version is independent.`)}catch{set('v6-update-status','GitHub check unavailable. Use View releases.')}};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;set('v6-install-status','Ready to install in this browser.')});$('v6-install').onclick=async()=>{if(installPrompt){await installPrompt.prompt();installPrompt=null}else set('v6-install-status','Use the browser’s Install app / Add to home screen menu if supported. Firefox desktop may not support standalone installation.')};if(!preview&&'serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/sw.js').then(()=>set('v6-install-status','Offline app shell enabled.')).catch(()=>set('v6-install-status','App shell unavailable. Apply the optional PWA server patch first.'));else set('v6-install-status','Installation is available from the local server in supported browsers.');
+new MutationObserver(route).observe(main,{attributes:true,attributeFilter:['data-view','hidden']});window.addEventListener('online',renderStatus);window.addEventListener('offline',renderStatus);window.addEventListener('xattendo:analytics-data',refreshDerived);setInterval(refreshDerived,1000);applyAppearance();applyLayout();renderNotifications();route();refreshDerived();
+})();
+</script><script>
+(() => {
+  const api=window.xattendoV6;
+  if(!api)return;
+  const create=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
+  const valid=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+  const fmt=v=>valid(v)?Math.floor(v/3600)+'h '+String(Math.floor(v%3600/60)).padStart(2,'0')+'m':'Unavailable';
+  function panel(parent,title,desc){
+    const p=create('section','upstream-period-panel');
+    p.append(create('h2','',title),create('p','v5-muted',desc));
+    const rows=create('div','upstream-period-rows');
+    p.append(rows);parent.append(p);return {p,rows};
+  }
+  const hourly=panel(document.getElementById('history'),'Hourly screen locks','Observed lock duration by campus-local hour.');
+  const period=panel(document.getElementById('attendance'),'Current period time breakdown','Intra location time and observed screen locks by date.');
+  let sig='';
+  function addRow(parent,label,total,locked,max,onlyLocks=false){
+    const row=create('div','upstream-time-row'),labelEl=create('span','',label);
+    const track=create('div','upstream-time-track'),fill=create('span','upstream-time-fill');
+    if(valid(total)){
+      fill.style.width=(Math.min(100,100*total/max))+'%';
+      if(onlyLocks)fill.style.background='var(--locked)';
+      else if(valid(locked)&&locked<=total&&total>0){
+        const net=(total-locked)/total*100;
+        fill.style.background='linear-gradient(to right,var(--logged) '+net+'%,var(--locked) '+net+'%)';
+      }
+      track.append(fill);
+    }
+    const value=create('span','upstream-time-value',onlyLocks?fmt(total):fmt(total)+' total · '+fmt(locked)+' locked');
+    row.append(labelEl,track,value);parent.append(row);
+  }
+  function render(){
+    if(document.getElementById('overview').hidden){sig='';hourly.rows.replaceChildren();period.rows.replaceChildren();return}
+    const state=api.read(),daily=state.reportData,report=state.analyticsData||daily;
+    const hours=daily?.locks?.hourly_locks, totals=report?.report?.period_log_seconds, days=report?.locks?.period_days;
+    const next=JSON.stringify([state.account,daily?.date,hours,totals,days,state.today]);
+    if(next===sig)return;sig=next;
+    hourly.rows.replaceChildren();period.rows.replaceChildren();
+    if(Array.isArray(hours)&&hours.length){
+      const max=Math.max(60,...hours.map(x=>valid(x.locked_seconds)?x.locked_seconds:0));
+      const clock=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',minute:'2-digit'});
+      for(const h of hours){const d=new Date(h.start);if(!Number.isFinite(+d))continue;addRow(hourly.rows,clock.format(d),h.locked_seconds,null,max,true);}
+    }else hourly.rows.append(create('p','v5-muted','Hourly records are unavailable.'));
+    const lockMap=new Map((Array.isArray(days)?days:[]).map(x=>[x.date,x.locked_seconds]));
+    const dates=[...new Set([...Object.keys(totals||{}),...lockMap.keys()])].sort();
+    const max=Math.max(60,...dates.map(d=>valid(totals?.[d])?totals[d]:0));
+    if(!dates.length)period.rows.append(create('p','v5-muted','Period totals are unavailable.'));
+    for(const d of dates){
+      if(d>state.today){period.rows.append(create('p','v5-muted',d+' · Upcoming'));continue}
+      addRow(period.rows,d,totals?.[d],lockMap.get(d),max);
+    }
+  }
+  render();setInterval(render,1500);
+})();
+</script></body>
+</html>

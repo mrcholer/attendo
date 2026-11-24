@@ -1,52 +1,33 @@
-const $ = id => document.getElementById(id);
-const pageLinks = [...document.querySelectorAll('.page-nav a')];
-function initStartupPreference(id) {
-  const select = $(id);
-  const key = `logged-${id}`;
-  try {
-    const saved = localStorage.getItem(key);
-    if ([...select.options].some(option => option.value === saved)) select.value = saved;
-  } catch { /* Use the default option when storage is unavailable. */ }
-  select.addEventListener('change', () => {
-    try { localStorage.setItem(key, select.value); } catch { /* Storage is unavailable. */ }
-  });
-  return select.value;
-}
-const startupPage = initStartupPreference('default-page');
-const startupDay = initStartupPreference('default-day');
-
-function placeIn(id, containerId) {
-  const element = $(id), container = $(containerId);
-  if (element.parentElement !== container) container.append(element);
-}
-function showPage() {
-  const hash = window.location.hash || `#${startupPage}`;
-  const pageHash = ({'#history': '#details', '#attendance': '#week'})[hash] ?? hash;
-  const active = pageLinks.find(link => link.hash === pageHash) ?? pageLinks[0];
-  const details = active.hash === '#details';
-  placeIn('goal-panel', details ? 'detail-net-summary' : 'logged-card');
-  placeIn('current-period', details ? 'details-metrics' : 'overview-period');
-  placeIn('hourly-visual', details ? 'history-graph' : 'overview-hours');
-  if (hash === '#history') $('lock-periods').open = true;
-  $('daily-session').hidden = active.hash === '#week';
-  $('day-tabs').hidden = active.hash === '#week';
-  $('last-refresh').hidden = active.hash === '#week';
-  $('page-title').textContent = active.textContent;
-  for (const link of pageLinks) {
-    $(link.hash.slice(1) + '-page').hidden = link !== active;
-    if (link === active) link.setAttribute('aria-current', 'page');
+const navigation = [...document.querySelectorAll('.sidebar .nav')];
+function activateSection(hash) {
+  const selected = navigation.find(link => link.hash === hash) || navigation[0];
+  for (const link of navigation) {
+    const active = link === selected;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'location');
     else link.removeAttribute('aria-current');
   }
 }
-window.addEventListener('hashchange', showPage);
-showPage();
+for (const link of navigation) {
+  link.addEventListener('click', () => activateSection(link.hash));
+}
+window.addEventListener('hashchange', () => activateSection(window.location.hash));
+activateSection(window.location.hash);
 
+const $ = id => document.getElementById(id);
 const zone = 'Africa/Casablanca';
 const campusDateFormat = new Intl.DateTimeFormat('en-CA', {timeZone: zone, year:'numeric', month:'2-digit', day:'2-digit'});
 function campusToday() {
   const parts = Object.fromEntries(campusDateFormat.formatToParts(new Date()).map(({type, value}) => [type, value]));
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
+const defaultDaySetting = $('default-day');
+try {
+  defaultDaySetting.value = localStorage.getItem('logged-default-day') === 'yesterday' ? 'yesterday' : 'today';
+} catch { /* Keep the default when storage is unavailable. */ }
+defaultDaySetting.addEventListener('change', () => {
+  try { localStorage.setItem('logged-default-day', defaultDaySetting.value); } catch { /* Keep the setting for this visit. */ }
+});
 const startupSetting = $('launch-at-login');
 let savedStartupSetting = null;
 let checkingStartupSetting = false;
@@ -87,25 +68,14 @@ $('open-settings').addEventListener('click', () => {
 startupSetting.addEventListener('change', () => syncStartupSetting(startupSetting.checked));
 
 let today = campusToday();
-let selectedDay = startupDay === 'yesterday' ? previousDay() : today;
+let selectedDay = defaultDaySetting.value === 'yesterday' ? previousDay() : today;
 let loading = false;
 let dashboardRequest = 0;
 const dayReports = new Map();
 // At 35 minutes past a full hour, attendance rounds up to the next hour.
 const attendanceRoundingOffsetSeconds = (60 - 35) * 60;
 const duration = value => value == null ? '—' : `${Math.floor(value / 3600)}h ${String(Math.floor(value % 3600 / 60)).padStart(2,'0')}m`;
-function renderMetricDuration(element, seconds) {
-  element.innerHTML = duration(seconds).replace(/h (\d+)m$/, '<small>h:</small>$1<small>m</small>');
-}
-const campusClock = new Intl.DateTimeFormat('en-GB', {timeZone: zone, hour: '2-digit', minute: '2-digit'});
-const clock = value => campusClock.format(new Date(value));
-const refreshClock = new Intl.DateTimeFormat('en-GB', {timeZone: zone, timeStyle: 'medium'});
-function showRefreshTime(date) {
-  const label = $('last-refresh');
-  if (date) label.dateTime = date.toISOString();
-  else label.removeAttribute('datetime');
-  label.textContent = date ? `Last refreshed ${refreshClock.format(date)}` : '';
-}
+const clock = value => new Intl.DateTimeFormat('en-GB', {timeZone:zone,hour:'2-digit',minute:'2-digit'}).format(new Date(value));
 function updateGoal(report) {
   const target = report?.attendance_goal?.daily_seconds;
   const logged = report?.logged_seconds;
@@ -130,6 +100,7 @@ function updateDayView() {
   $('logged-card').hidden = historical;
   $('recorded-card').hidden = historical;
   $('intra-card').hidden = historical;
+  $('daily-cards').classList.toggle('historical', historical);
   $('historical-card').hidden = !historical;
 }
 async function fetchDashboard(day, force = false) {
@@ -142,8 +113,9 @@ async function fetchDashboard(day, force = false) {
 function showDashboard() {
   const returnFocus = $('session-screen').contains(document.activeElement);
   $('session-screen').hidden = true;
-  $('dashboard').hidden = false;
-  if (returnFocus) document.querySelector('.page-nav [aria-current]').focus();
+  $('sidebar').hidden = false;
+  $('overview').hidden = false;
+  if (returnFocus) $('open-settings').focus();
 }
 
 async function fetchSessions() {
@@ -158,12 +130,12 @@ async function fetchSessions() {
 
 function showSessionScreen() {
   dayReports.clear();
-  showRefreshTime(null);
   $('day-report').hidden = true;
-  $('session-details').hidden = true;
+  $('signed-in-account').hidden = true;
   const opening = $('session-screen').hidden;
   if ($('settings').open) $('settings').close();
-  $('dashboard').hidden = true;
+  $('sidebar').hidden = true;
+  $('overview').hidden = true;
   $('session-screen').hidden = false;
   if (opening) $('session-title').focus();
 }
@@ -193,57 +165,51 @@ function renderSessions(sessions) {
   if ($('session-status').textContent !== message) $('session-status').textContent = message;
 }
 
-function totalLogTime(report) {
-  return report?.attendo_source === '42_intra_locations' ? report.attendo_seconds : null;
-}
-
 function renderDashboard(data) {
   renderAttendance(data);
   const r = data.report, locks = data.locks;
-  $('session-username').textContent = r?.username || '—';
-  $('session-workstation').textContent = r?.current_workstation || '—';
-  $('session-details').hidden = !r?.username && !r?.current_workstation;
-  renderMetricDuration($('logged'), r?.logged_seconds);
-  renderMetricDuration($('daily-net'), r?.logged_seconds);
-  const estimated = r?.time_kind === 'estimated' && r.logged_seconds != null;
-  $('net-kind').hidden = !estimated;
-  $('detail-estimated').hidden = !estimated;
-  $('detail-date').dateTime = selectedDay;
-  $('detail-date').textContent = chartDayFormat.format(new Date(selectedDay));
-  const netSource = {
-    '42_intra_locations': '42 Intra log time − observed locks',
-    'todayHoursEstimation': 'Attendo live estimate − observed locks',
-    'daily.hours': '1337 Attendo daily record'
-  }[r?.attendo_source];
-  $('net-source').textContent = netSource ?? '';
-  $('net-source').hidden = !netSource;
+  $('signed-in-account').hidden = !r?.username;
+  const workstation = r?.current_workstation ? ` · Workstation ${r.current_workstation}` : '';
+  $('signed-in-account').textContent = r?.username ? `Signed in as ${r.username}${workstation}` : '';
+  $('logged').replaceChildren();
+  if (r?.logged_seconds != null) {
+    const seconds = r.logged_seconds;
+    $('logged').append(document.createTextNode(Math.floor(seconds/3600)));
+    const h=document.createElement('span');h.textContent='h';$('logged').append(h,document.createTextNode(String(Math.floor(seconds%3600/60)).padStart(2,'0')));
+    const m=document.createElement('span');m.textContent='m';$('logged').append(m);
+  } else $('logged').textContent = '—';
   $('historical-total').textContent = r?.time_kind === 'recorded' ? duration(r.attendo_seconds) : '—';
   const recorded = r?.attendo_recorded_seconds;
-  const netSeconds = r?.logged_seconds;
-  const expected = $('recorded-expected');
-  expected.hidden = netSeconds == null;
-  expected.textContent = netSeconds == null ? '' : `Should be ${Math.floor((netSeconds + attendanceRoundingOffsetSeconds) / 3600)}h`;
-  $('recorded').textContent = recorded != null ? `${Math.floor(recorded / 3600)}h` : r ? 'Not yet recorded' : '—';
-  $('recorded').classList.toggle('unposted', recorded == null);
+  const expectedHours = recorded == null && selectedDay === previousDay() && r?.logged_seconds != null
+    ? Math.floor((r.logged_seconds + attendanceRoundingOffsetSeconds) / 3600) : null;
+  $('recorded').textContent = recorded == null ? '—' : `${Math.floor(recorded / 3600)}h`;
+  $('recorded-expected').hidden = expectedHours == null;
+  $('recorded-expected').textContent = expectedHours == null ? '' : `(expected: ${expectedHours}h)`;
   const latestRecorded = (r?.attendance_periods || []).flatMap(period => period.days)
     .filter(day => day.date < selectedDay).sort((a, b) => b.date.localeCompare(a.date))[0];
-  const recordedNote = $('recorded-description');
-  recordedNote.hidden = recorded != null || (r != null && !latestRecorded);
-  recordedNote.textContent = !r ? 'Connect to Attendo and refresh'
-    : latestRecorded ? `Last recorded · ${periodDateFormat.format(new Date(latestRecorded.date))} · ${latestRecorded.hours}h` : '';
-  renderMetricDuration($('intra-total'), totalLogTime(r));
-  const lockedSeconds = locks?.locked_seconds ?? r?.locked_seconds;
-  renderMetricDuration($('overview-locked'), lockedSeconds);
-  renderHourlyLocks(locks?.hourly_locks);
-  renderMetricDuration($('locked'), lockedSeconds);
+  $('recorded-description').hidden = expectedHours != null;
+  $('recorded-description').textContent = recorded != null ? 'Recorded campus attendance for this day'
+    : !r ? 'Connect to Attendo and refresh'
+    : latestRecorded ? `Not yet recorded · latest ${duration(latestRecorded.hours * 3600)} (${latestRecorded.date})`
+    : 'Attendo has not returned a saved total for this day';
+  $('intra-total').textContent = duration(r?.attendo_source === '42_intra_locations' ? r.attendo_seconds : null);
+  $('locked').textContent = duration(locks?.locked_seconds ?? r?.locked_seconds);
+  $('kind').textContent = r?.time_kind === 'recorded' ? 'Recorded' : 'Estimated';
   const periods = locks?.periods || [];
   $('count').textContent = `${periods.length} period${periods.length===1?'':'s'}`;
   renderLockRows($('periods'), locks);
   $('warnings').replaceChildren();
   for (const message of new Set([...(r?.warnings || []), ...(locks?.warnings || []), ...(data.errors || [])])) { const li=document.createElement('li');li.textContent=message;$('warnings').append(li); }
   $('status').className = data.errors.length ? 'error' : '';
-  $('status').textContent = data.errors[0]?.replace(/^Error: /, '')
-    || (r?.attendo_seconds == null ? 'Daily attendance unavailable. See Details for more information.' : '');
+  if (r) {
+    const attendanceStatus = r.time_kind === 'recorded' ? (r.attendo_seconds == null ? 'Recorded total unavailable for this day' : 'Recorded daily attendance')
+      : r.attendo_seconds == null ? '42 Intra location data unavailable for this day'
+      : 'Estimated attendance, adjusted for observed locks';
+    const details = data.errors.length || r.attendo_seconds == null ? ' · See “About these numbers” for details.' : '';
+    $('status').textContent = `${attendanceStatus}${details}`;
+  } else {
+    $('status').textContent = data.errors[0]?.replace(/^Error: /, '') || 'Attendance is unavailable.';
+  }
   updateGoal(r);
 }
 
@@ -254,9 +220,8 @@ async function load(force = false, sessions = null) {
   const day = selectedDay;
   if (!dayReports.has(day)) dayReports.set(day, {});
   const entry = dayReports.get(day);
-  showRefreshTime(entry.refreshedAt);
   $('day-report').hidden = !entry.data;
-  const checkSignIn = force || $('dashboard').hidden;
+  const checkSignIn = force || $('overview').hidden;
   loading = true;
   $('refresh').disabled = true;
   $('refresh').textContent = 'Refreshing…';
@@ -279,16 +244,12 @@ async function load(force = false, sessions = null) {
     $('status').textContent = day === today ? 'Loading today’s attendance…' : 'Loading yesterday’s attendance…';
     // Reuse a date's pending request when switching away and back.
     if (!entry.pending) {
-      entry.pending = fetchDashboard(day, force).then(data => {
-        entry.data = data;
-        if (data.report || data.locks) entry.refreshedAt = new Date();
-        return data;
-      }).finally(() => { entry.pending = null; });
+      entry.pending = fetchDashboard(day, force).finally(() => { entry.pending = null; });
     }
     const data = await entry.pending;
+    entry.data = data;
     if (request !== dashboardRequest) return;
     renderDashboard(data);
-    showRefreshTime(entry.refreshedAt);
     $('day-report').hidden = false;
   } catch (error) {
     if (request !== dashboardRequest) return;
@@ -349,130 +310,29 @@ function renderLockRows(body, locks) {
   if (!periods.length) { const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;cell.className='empty';cell.textContent=locks?'No lock periods recorded for this day.':'Lock history is unavailable.';row.append(cell);body.append(row); }
 }
 
-const periodDateFormat = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric', timeZone:'UTC'});
-const chartDayFormat = new Intl.DateTimeFormat('en-GB', {weekday:'short', month:'short', day:'numeric', timeZone:'UTC'});
-
-function renderCurrentPeriod(period, target, dateRange) {
-  $('period-gauge').hidden = !period;
-  $('period-progress-status').hidden = !period;
-  $('period-progress-count').hidden = !period;
-  $('period-progress-dates').textContent = dateRange || 'Current period unavailable.';
+function renderCurrentPeriod(period, target) {
+  $('current-period-progress').hidden = !period;
   if (!period) return;
 
   const seconds = period.total * 3600;
   const hasTarget = target > 0;
   const reached = hasTarget && seconds >= target;
   const progress = hasTarget ? Math.min(1, Math.max(0, seconds / target)) : 0;
-  $('period-gauge').style.setProperty('--period-sweep', `${progress * 270}deg`);
   const compactDuration = value => duration(value).replace(/ 00m$/, '');
+  const dateFormat = new Intl.DateTimeFormat('en-US', {month:'short', day:'numeric', timeZone:'UTC'});
+  $('period-gauge').style.setProperty('--period-sweep', `${progress * 270}deg`);
   $('period-progress-total').textContent = compactDuration(seconds);
   $('period-progress-target').textContent = hasTarget ? `of ${compactDuration(target)}` : 'Recorded';
   $('period-progress-count').textContent = `${period.days.filter(day => day.counted).length} / 7 days counted`;
   $('period-progress-status').textContent = reached ? 'Target reached' : hasTarget ? 'In progress' : 'Target unavailable';
   $('period-progress-status').classList.toggle('target-reached', reached);
-}
-
-function chartDuration(seconds) {
-  if (seconds > 0 && seconds < 60) return '<1m';
-  return duration(seconds).replace(/^0h 0?/, '');
-}
-
-function renderHourlyLocks(hours) {
-  const bars = $('hour-bars');
-  const previous = bars.querySelector('input:checked')?.value;
-  bars.replaceChildren();
-  $('hourly-date').textContent = chartDayFormat.format(new Date(selectedDay));
-  $('hourly-chart').hidden = !hours?.length;
-  $('hourly-empty').hidden = !!hours?.length;
-  if (!hours?.length) return;
-
-  const peak = Math.max(0, ...hours.map(hour => hour.locked_seconds ?? 0));
-  const scaleMinutes = [10, 20, 30, 60].find(minutes => minutes * 60 >= peak) ?? 60;
-  $('hour-max').textContent = `${scaleMinutes}m`;
-  $('hour-mid').textContent = `${scaleMinutes / 2}m`;
-  $('hour-upcoming').hidden = hours.every(hour => hour.locked_seconds != null);
-  const selected = hours.find(hour => hour.start === previous && hour.locked_seconds != null)
-    ?? hours.find(hour => hour.locked_seconds === peak);
-  for (const {start, locked_seconds: seconds} of hours) {
-    const slot = document.createElement('label');
-    const input = document.createElement('input');
-    const time = clock(start);
-    // Include the offset on a clock-change day to distinguish repeated hours.
-    const hourLabel = hours.length === 24 ? `${time}–${clock(Date.parse(start) + 3600000)}`
-      : `Hour starting ${time} UTC${start.slice(-6)}`;
-    const description = seconds == null ? `${hourLabel} · Upcoming` : `${hourLabel} · ${chartDuration(seconds)} locked`;
-    slot.className = 'hour-slot';
-    slot.title = description;
-    if (Number(time.slice(0, 2)) % 4 === 0) slot.dataset.tick = time.slice(0, 2);
-    input.type = 'radio';
-    input.name = 'lock-hour';
-    input.value = start;
-    input.disabled = seconds == null;
-    input.checked = start === selected?.start;
-    input.setAttribute('aria-label', description);
-    if (input.checked) $('hour-value').textContent = peak === 0 ? 'No locks observed' : description;
-    input.addEventListener('change', () => { $('hour-value').textContent = description; });
-    if (seconds > 0) slot.style.setProperty('--bar-height', `max(2px, ${100 * seconds / (scaleMinutes * 60)}%)`);
-    slot.append(input);
-    bars.append(slot);
-  }
-}
-
-function renderPeriodChart(logTotals, lockDays, dateRange) {
-  const list = $('time-chart-days');
-  list.replaceChildren();
-  const locks = new Map((lockDays || []).map(day => [day.date, day.locked_seconds]));
-  const dates = logTotals ? Object.keys(logTotals).sort() : [...locks.keys()].sort();
-  $('time-chart-legend').hidden = !dateRange || !dates.length;
-  if (!dateRange || !dates.length) {
-    $('time-chart-period').textContent = dateRange ? 'Daily totals unavailable for this period.' : 'Current period unavailable.';
-    return;
-  }
-  $('time-chart-period').textContent = `Current Attendo period · ${dateRange}`;
-  const maximum = Math.max(1, ...dates.filter(date => date <= today).map(date => logTotals?.[date] ?? 0));
-  for (const date of dates) {
-    const row = document.createElement('li');
-    const label = document.createElement('time');
-    label.dateTime = date;
-    label.textContent = chartDayFormat.format(new Date(date));
-    const track = document.createElement('span');
-    track.className = 'time-track';
-    track.setAttribute('aria-hidden', 'true');
-    const value = document.createElement('span');
-    value.className = 'time-values';
-    if (date > today) {
-      row.className = 'upcoming';
-      value.textContent = 'Upcoming';
-    } else {
-      const total = logTotals?.[date];
-      const locked = locks.get(date);
-      const totalLabel = total == null ? 'Total unavailable' : `${chartDuration(total)} total`;
-      const lockLabel = locked == null ? 'Locks unavailable' : `${chartDuration(locked)} locked`;
-      value.textContent = `${totalLabel} · ${lockLabel}`;
-      if (total != null) {
-        const bar = document.createElement('span');
-        bar.style.width = `${100 * total / maximum}%`;
-        if (locked != null && locked <= total) {
-          bar.className = 'split-time';
-          bar.style.setProperty('--unlocked-share', `${total > 0 ? 100 * (total - locked) / total : 0}%`);
-        } else if (locked > total) {
-          value.textContent += ' (exceeds total)';
-        }
-        track.append(bar);
-      }
-    }
-    row.append(label, value, track);
-    list.append(row);
-  }
+  $('period-progress-dates').textContent = dateFormat.formatRange(new Date(period.start), new Date(period.end));
 }
 
 function renderAttendance(data) {
   const periods = data.report?.attendance_periods || [];
   const target = data.report?.attendance_goal?.target_seconds;
-  const current = periods.find(period => period.label === 'Current period');
-  const dateRange = current ? periodDateFormat.formatRange(new Date(current.start), new Date(current.end)) : '';
-  renderCurrentPeriod(current, target, dateRange);
-  renderPeriodChart(data.report?.period_log_seconds, data.locks?.period_days, dateRange);
+  renderCurrentPeriod(periods.find(period => period.label === 'Current period'), target);
   const list = $('attendance-periods');
   const expanded = new Set([...list.querySelectorAll('.attendance-period[open]')].map(item => item.dataset.period));
   const expandedDays = new Set([...list.querySelectorAll('.attendance-day[open]')].map(item => item.dataset.day));
@@ -566,16 +426,14 @@ function renderAttendanceDays(period, expandedDays, data) {
   return container;
 }
 
-function renderInlineDay(container, {date, report, locks, errors}) {
+function renderInlineDay(container, {report, locks, errors}) {
   const totals = document.createElement('dl');
   totals.className = 'inline-day-totals';
-  const metrics = [
+  for (const [label, seconds] of [
     ['Net attendance', report?.logged_seconds],
     ['Attendo recorded', report?.attendo_recorded_seconds],
-    ['Total locked time', locks?.locked_seconds ?? report?.locked_seconds]
-  ];
-  if (date === today || date === previousDay()) metrics.unshift(['Total log time', totalLogTime(report)]);
-  for (const [label, seconds] of metrics) {
+    ['Locked time', locks?.locked_seconds ?? report?.locked_seconds]
+  ]) {
     const metric = document.createElement('div');
     const name = document.createElement('dt');
     name.textContent = label;
@@ -602,7 +460,7 @@ function renderInlineDay(container, {date, report, locks, errors}) {
 let checkingSession = false;
 async function checkSession() {
   if (checkingSession || loading || document.hidden) return;
-  if (syncCampusDay() && !$('dashboard').hidden) {
+  if (syncCampusDay() && !$('overview').hidden) {
     await load(true);
     return;
   }
@@ -612,9 +470,9 @@ async function checkSession() {
     const sessions = await fetchSessions();
     if (request !== dashboardRequest) return;
     renderSessions(sessions);
-    if (sessions.active === false || (sessions.active === null && $('dashboard').hidden)) {
+    if (sessions.active === false || (sessions.active === null && $('overview').hidden)) {
       showSessionScreen();
-    } else if (sessions.active && $('dashboard').hidden) {
+    } else if (sessions.active && $('overview').hidden) {
       await load(true, sessions);
     }
   } catch (error) {

@@ -164,7 +164,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
             self.wfile.write(body)
-        elif url.path in ('/', '/index.html', '/style.css', '/app.js', '/theme.js'):
+        elif url.path in ('/', '/index.html', '/style.css', '/app.js', '/theme.js', '/manifest.webmanifest', '/sw.js', '/icon-192.png', '/icon-512.png'):
             super().do_GET()
         else:
             self.send_error(404)
