@@ -20,9 +20,28 @@ const link=el('a','Open Intra ↗','button');link.href='https://profile.intra.42
 const metrics=el('div','','v6-metrics');metrics.append(metric('Level',finite(c?.level)?c.level.toFixed(2):'—'),metric('Wallet',finite(p?.wallet)?String(p.wallet):'—'),metric('Correction points',finite(p?.correction_points)?String(p.correction_points):'—'),metric('Projects',p?.projects_available?String(p.projects.length):'—'));profile.append(metrics);
 if(d.message)profile.append(el('p',d.message,'v5-muted'));
 for(const c of p?.cursus||[]){const r=el('div','','v7-detail');r.append(el('span',c.name||'Cursus'),el('strong',finite(c.level)?'Level '+c.level.toFixed(2):'—'));profile.append(r)}
-if(!p?.projects_available){projects.append(el('p','Project details unavailable. Configure an authorized API token.','v5-muted'));return}
-if(!p.projects.length)projects.append(el('p','No project records returned.','v5-muted'));
-for(const p of p.projects){const r=el('div','','v7-detail');r.append(el('span',p.name),el('span',(p.validated?'Validated':p.status||'Unknown')+(finite(p.mark)?' · '+p.mark:'')));projects.append(r)}
+if(d.project_message)projects.append(el('p',d.project_message,'v5-muted'));
+if(!p?.projects_available){projects.append(el('p',d.message||'Project details unavailable. Configure an authorized API token.','v5-muted'));return}
+const activeStatuses=new Set(['in_progress','creating_group','searching_a_group','waiting_for_correction','waiting_for_evaluation','registered','registration','waiting_for_group','parent','waiting_to_start']);
+const classify=p=>p.validated===true?'validated':p.status==='finished'||p.validated===false?'finished':activeStatuses.has(p.status)?'active':'other';
+const labels={in_progress:'In progress',creating_group:'Creating group',searching_a_group:'Searching for group',waiting_for_correction:'Waiting for correction',waiting_for_evaluation:'Waiting for evaluation',registered:'Registered',finished:'Finished'};
+const groups=[['Current registrations','active'],['Validated projects','validated'],['Other completed attempts','finished'],['Other registrations','other']];
+if(!p.projects.length){projects.append(el('p','No project registrations returned.','v5-muted'));return}
+for(const [title,kind] of groups){
+ const list=p.projects.filter(x=>classify(x)===kind);
+ if(!list.length&&kind!=='active')continue;
+ const section=el('section','','v72-project-section'),heading=el('div','','v72-project-heading');heading.append(el('h3',title),el('span',String(list.length),'v72-project-count'));section.append(heading);
+ if(!list.length)section.append(el('p','No active registrations returned.','v5-muted'));
+ for(const item of list){
+ const row=el('div','','v72-project-row'),left=el('div','','v72-project-name'),right=el('div','','v72-project-meta');
+ left.append(el('strong',item.name));
+ const label=item.validated===true?'Validated':labels[item.status]||(item.status?item.status.replace(/_/g,' '):'Unknown status');
+ right.append(el('span',label,'v72-project-status '+kind));
+ right.append(el('span',finite(item.mark)?String(item.mark)+'/100':'Not graded','v72-project-mark'));
+ row.append(left,right);section.append(row);
+ }
+ projects.append(section);
+}
 }
 function sessionView(d){
 timeline.replaceChildren();rows.replaceChildren();status.textContent=(d.notes||[]).join(' ');

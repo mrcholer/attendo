@@ -31,3 +31,23 @@ class CampusFeatureTests(unittest.TestCase):
         self.assertEqual(len(result),2)
         self.assertEqual(result[0]['start'],start.isoformat())
         self.assertTrue(result[1]['ongoing'])
+
+    def test_project_registrations_include_ungraded_and_paginate(self):
+        rows=[{'id':i,'project':{'name':f'Project {i}'},'status':'finished','validated?':True,'final_mark':100} for i in range(100)]
+        active={'id':100,'project':{'name':'Current project'},'status':'in_progress','validated?':None,'final_mark':None}
+        with patch.object(campus,'api_get',side_effect=[rows,[active]]) as get:
+            projects,complete=campus.fetch_projects('student','token')
+        self.assertTrue(complete)
+        self.assertEqual(len(projects),101)
+        self.assertEqual(projects[-1]['status'],'in_progress')
+        self.assertIsNone(projects[-1]['mark'])
+        self.assertIsNone(projects[-1]['validated'])
+        self.assertEqual(get.call_args.args[0],'users/student/projects_users')
+        self.assertEqual(get.call_args.args[2]['page[number]'],2)
+
+    def test_profile_uses_registered_projects_not_embedded_subset(self):
+        raw={'login':'student','projects_users':[]}
+        active={'name':'Current','status':'in_progress','validated':None,'mark':None}
+        with patch.object(campus,'current_login',return_value='student'), patch.object(campus,'token',return_value='token'), patch.object(campus,'api_get',return_value=raw), patch.object(campus,'fetch_projects',return_value=([active],True)):
+            result=campus.profile_data()
+        self.assertEqual(result['profile']['projects'],[active])

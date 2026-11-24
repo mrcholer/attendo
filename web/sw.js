@@ -1,4 +1,4 @@
-const CACHE='xattendo-v6-shell-4';
+const CACHE='xattendo-v6-shell-5';
 const SHELL=['/index.html','/style.css','/app.js','/theme.js','/campus.js','/manifest.webmanifest','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('xattendo-v6-shell-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});

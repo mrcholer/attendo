@@ -75,16 +75,50 @@ def number(value):
 def objects(value):
     return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
 
+def sanitize_projects(rows):
+    result = []
+    for row in objects(rows):
+        project = row.get('project')
+        if not isinstance(project, dict) or not isinstance(project.get('name'), str):
+            continue
+        validation = row.get('validated?')
+        result.append({'id': number(row.get('id')), 'name': string(project['name']),
+                       'slug': string(project.get('slug')), 'status': string(row.get('status')),
+                       'mark': number(row.get('final_mark')),
+                       'validated': validation if type(validation) is bool else None,
+                       'cursus_ids': [n for n in row.get('cursus_ids', []) if type(n) is int]
+                       if isinstance(row.get('cursus_ids'), list) else []})
+    return result
+
+def fetch_projects(login, access):
+    path = 'users/' + quote(login, safe='') + '/projects_users'
+    rows, seen = [], set()
+    for page in range(1, 21):
+        batch = api_get(path, access, {'page[size]': 100, 'page[number]': page})
+        if not isinstance(batch, list) or any(not isinstance(row, dict) for row in batch):
+            raise APIError('Unexpected 42 project registrations response.')
+        new = 0
+        for row in batch:
+            ident = row.get('id')
+            if type(ident) is int:
+                if ident in seen:
+                    continue
+                seen.add(ident)
+            rows.append(row)
+            new += 1
+        if len(batch) < 100:
+            return sanitize_projects(rows), True
+        if not new:
+            break
+    return sanitize_projects(rows), False
+
 def sanitize_profile(raw, login):
     if not isinstance(raw, dict) or raw.get('login') != login:
         raise APIError('42 API profile does not match campus account.')
     courses = [{'name': string(c['cursus'].get('name')), 'level': number(c.get('level')),
                 'end_at': string(c.get('end_at'))}
                for c in objects(raw.get('cursus_users')) if isinstance(c.get('cursus'), dict)]
-    projects = [{'name': string(p['project']['name']), 'status': string(p.get('status')),
-                 'mark': number(p.get('final_mark')), 'validated': p.get('validated?') is True}
-                for p in objects(raw.get('projects_users')) if isinstance(p.get('project'), dict)
-                and isinstance(p['project'].get('name'), str)]
+    projects = sanitize_projects(raw.get('projects_users'))
     return {'login': login, 'name': string(raw.get('displayname')) or login,
             'wallet': number(raw.get('wallet')), 'correction_points': number(raw.get('correction_point')),
             'campuses': [c['name'][:160] for c in objects(raw.get('campus')) if isinstance(c.get('name'), str)],
@@ -101,6 +135,14 @@ def profile_data():
         access = token()
         if access:
             data['profile'] = sanitize_profile(api_get('users/' + quote(login, safe=''), access), login)
+            try:
+                projects, complete = fetch_projects(login, access)
+                data['profile']['projects'] = projects
+                data['profile']['projects_available'] = True
+                if not complete:
+                    data['project_message'] = 'Project pagination limit reached; some records may be missing.'
+            except APIError as error:
+                data['project_message'] = 'Could not refresh project registrations: ' + str(error) + ' Showing embedded profile projects if available.'
         else:
             data['message'] = 'Configure an optional 42 API token for academic details.'
     except APIError as error:
