@@ -1,15 +1,39 @@
 # Xattendo
 
-A local dashboard for 1337 students to check their Attendo attendance, estimated
-logged time, and screen-lock history. See your daily target and review previous
-days in one place.
+A local attendance dashboard for 1337 students, with a modern purple and charcoal interface, attendance analytics, goal planning, and screen-lock history.
+
+This fork builds on [Mohamed Nasih's original Attendo project](https://github.com/mohamednasih/attendo).
+
+## Screenshots
+
+The following previews use fictional attendance data.
+
+![Overview dashboard](docs/screenshots/overview.webp)
+
+| Analytics | Smart insights |
+| --- | --- |
+| ![Analytics](docs/screenshots/analytics.webp) | ![Insights](docs/screenshots/insights.webp) |
+| **Calendar** | **Customize dashboard** |
+| ![Calendar](docs/screenshots/calendar.webp) | ![Customize](docs/screenshots/customize.webp) |
+| **Focus mode** | |
+| ![Focus mode](docs/screenshots/focus.webp) | |
+
+## Features
+
+- Overview with daily goals, period progress and activity timeline.
+- Analytics with interactive charts, attendance heatmap and CSV export.
+- Calendar, monthly reports, forecasts and attendance insights.
+- Customizable widgets, collapsible sidebar and Ctrl+K quick actions.
+- Notification center, focus mode, dark/light/system themes and responsive layouts.
+- Optional offline snapshots and PWA support.
+- Local attendance and screen-lock tracking through Attendo and 42 Intra.
 
 ## Get started
 
 On Linux, with Python 3.10+ and Make installed:
 
 ```bash
-git clone https://github.com/mohamednasih/attendo.git
+git clone https://github.com/mrcholer/attendo.git
 cd attendo
 make install
 ```
@@ -46,14 +70,10 @@ logged-time stats
 
 For a previous day, use `logged-time stats --date 2026-11-14`.
 
-- Click the sun or moon beside **Settings** to switch between light and dark. Your choice is saved for this browser.
-- **Settings** lets you choose the startup page (Overview or Details) and day (Today or Yesterday) for this browser, or toggle **Open browser at login** for this workstation. The server always starts in the background when you sign in.
-- **Overview** shows net attendance, current Attendo period progress, and total observed locked time for the selected day. Select an hour in the chart to see how many minutes the screen was locked. Select Today to see your daily goal under Net attendance.
-- **Details** shows total log time from 42 Intra, total observed locked time, net attendance, and Attendo’s recorded attendance for Today or Yesterday. The lock history graph shows minutes locked each hour. Expand **Lock and unlock times** for individual records.
-- **Week** charts each day’s total log time for the current Attendo period. Blue shows unlocked time and amber shows observed screen locks. Expand an attendance period and a day to inspect earlier records.
-
-Refresh using **Refresh data**, your browser's reload button, or `logged-time`.
-The page does not refresh on a timer.
+- Use the sidebar to switch between Overview, Analytics, Lock history, Attendance, Calendar, Reports, Insights, Settings and other views.
+- Use **Settings** to change preferences and configure automatic refresh.
+- Press `Ctrl+K` to open quick actions.
+- Refresh manually whenever needed. Historical reports depend on available records; unknown dates are not assumed to be zero attendance.
 
 Logged time for today and yesterday is an estimate that subtracts observed locks from the 42 Intra
 location total. Lock history starts when the app is running; earlier locks may be
